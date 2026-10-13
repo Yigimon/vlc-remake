@@ -81,6 +81,7 @@ T.ComboBox {
         id: itemDelegate
 
         width: ListView.view ? ListView.view.width : control.width
+        implicitWidth: implicitContentWidth + leftPadding + rightPadding
         implicitHeight: Math.max(VLCStyle.dp(32, VLCStyle.scale), implicitContentHeight + topPadding + bottomPadding)
 
         padding: VLCStyle.margin_xxsmall
@@ -92,11 +93,14 @@ T.ComboBox {
         readonly property bool isCurrent: control.currentIndex === index
 
         // the popup is as large as its largest entry:
-        onImplicitWidthChanged: {
+        function _updatePopupWidth() {
             const view = ListView.view
             if (view)
                 view.maxItemImplicitWidth = Math.max(view.maxItemImplicitWidth, implicitWidth)
         }
+
+        onImplicitWidthChanged: _updatePopupWidth()
+        Component.onCompleted: _updatePopupWidth()
 
         contentItem: RowLayout {
             spacing: VLCStyle.margin_xsmall
