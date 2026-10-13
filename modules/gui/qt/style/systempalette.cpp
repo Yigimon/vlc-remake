@@ -414,6 +414,7 @@ void SystemPalette::setCtx(MainCtx* ctx)
 void SystemPalette::updatePalette()
 {
     m_palettePriv.reset();
+    m_externalColors = false;
     switch(m_source)
     {
     case ColorSchemeModel::System:
@@ -1065,6 +1066,7 @@ void SystemPalette::makeSystemPalette()
     else
     {
         m_isDark = palette->isThemeDark();
+        m_externalColors = true;
     }
 
     m_palettePriv = std::move(palette);

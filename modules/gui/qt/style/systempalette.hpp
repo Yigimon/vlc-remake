@@ -144,6 +144,9 @@ public:
 
     inline MainCtx* getCtx() const { return m_ctx; }
     inline bool isDark() const { return m_isDark; }
+    /// true when the colors come from the theme provider of the system
+    /// instead of the palettes of the redesign
+    inline bool hasExternalColors() const { return m_externalColors; }
     bool hasCSDImage() const;
 
     void setColor(ColorContext::ColorSet colorSet,  ColorContext::ColorSection section,
@@ -185,6 +188,7 @@ private:
     bool m_isDark = false;
     // the user chose an accent color ("qt-accent-color"), it replaces the redesign accent
     bool m_customAccent = false;
+    bool m_externalColors = false;
     bool m_hasCSDImage = false;
 
     std::unique_ptr<ExternalPaletteImpl> m_palettePriv;

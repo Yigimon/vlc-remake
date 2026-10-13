@@ -1063,8 +1063,10 @@ void applyWidgetStyle(const SystemPalette& palette)
 
     const WidgetColors colors(palette);
 
-    // The system color scheme is built from the application palette, keep it:
-    if (palette.source() == ColorSchemeModel::System)
+    // The colors of the system color scheme can be built from the application
+    // palette (Qt theme provider), keep it then. Otherwise (e.g. Windows theme
+    // provider) the system scheme uses the palettes of the redesign:
+    if (palette.source() == ColorSchemeModel::System && palette.hasExternalColors())
     {
         restoreSystemWidgetPalette();
     }
