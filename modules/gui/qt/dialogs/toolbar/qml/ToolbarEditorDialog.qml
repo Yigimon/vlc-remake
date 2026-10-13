@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
-import QtQuick.Templates as T
 import QtQuick.Layouts
 
 import VLC.MainInterface
@@ -109,22 +108,12 @@ WindowDialog {
                     // this is not proper way to do it,
                     // but ComboBoxExt does not provide
                     // correct implicit width:
-                    implicitWidth: implicitContentWidth
+                    implicitWidth: implicitContentWidth + leftPadding + rightPadding
                     font.pixelSize: VLCStyle.fontSize_normal
 
-                    delegate: T.ItemDelegate {
-                        width: comboBox.width
-                        leftPadding: comboBox.leftPadding
-                        background: Item {}
-                        contentItem: Text {
-                            text: model.dirty ? _markDirty(model.name)
-                                              : model.name
-                            color: comboBox.color
-                            font: comboBox.font
-                            elide: Text.ElideRight
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                        highlighted: (comboBox.highlightedIndex === index)
+                    delegateTextFunc: (model) => {
+                        return model.dirty ? _markDirty(model.name)
+                                           : model.name
                     }
 
                     displayText: {
