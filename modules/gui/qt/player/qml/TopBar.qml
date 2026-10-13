@@ -61,7 +61,10 @@ FocusScope{
 
     property bool _showTopBar: (pinControls === false || showToolbar === false)
 
-    property bool _showCenterText: (pinControls && showToolbar === false && showCSD)
+    // Redesign: a single 40px title bar with the centered title whenever there is no menu bar
+    property bool _showCenterText: (showToolbar === false)
+
+    readonly property real _redesignBarHeight: VLCStyle.dp(40, VLCStyle.scale)
 
     readonly property int _sideMargin: VLCStyle.margin_small + sideMargin
 
@@ -137,7 +140,8 @@ FocusScope{
             //place everything on one line
             //csdDecorations.implicitHeight gets overwritten when the height is set,
             //VLCStyle.icon_normal is its initial value
-            const lineHeight = Math.max(logoOrResume.implicitHeight, playlistGroup.implicitHeight, VLCStyle.icon_normal)
+            const lineHeight = Math.max(logoOrResume.implicitHeight, playlistGroup.implicitHeight, VLCStyle.icon_normal,
+                                        _redesignBarHeight)
 
             centerTitleText.y = 0
             centerTitleText.height = lineHeight
@@ -148,7 +152,7 @@ FocusScope{
 
             playlistGroup.height = lineHeight
             playlistGroup.anchors.topMargin = 0
-            playlistGroup.extraRightMargin = Qt.binding(function() { return width - csdDecorations.x })
+            playlistGroup.extraRightMargin = Qt.binding(function() { return showCSD ? (width - csdDecorations.x) : 0 })
 
 
             implicitHeight = lineHeight
@@ -354,8 +358,7 @@ FocusScope{
 
         text: root.title
         color: theme.fg.primary
-        font.pixelSize: VLCStyle.dp(13, VLCStyle.scale)
-        font.weight: Font.DemiBold
+        font.pixelSize: VLCStyle.fontSize_normal
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
 
@@ -383,7 +386,7 @@ FocusScope{
 
         width: root.textWidth - VLCStyle.margin_normal
 
-        visible: !root.pinControls
+        visible: !root.pinControls && !root._showCenterText
 
         enabled: visible
 

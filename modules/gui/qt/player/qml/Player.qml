@@ -395,7 +395,8 @@ FocusScope {
 
                     postprocess: true
                     tint: bgtheme.palette.isDark ? "black" : "white"
-                    tintStrength: 0.5
+                    // Redesign: keep the dark backdrop dominant, the artwork only glows through
+                    tintStrength: bgtheme.palette.isDark ? 0.75 : 0.5
                     backgroundColor: bgtheme.bg.primary
 
                     readonly property ColorContext colorContext: ColorContext {
@@ -679,11 +680,12 @@ FocusScope {
                                 value: centerContent.height > (albumLabel.y + albumLabel.height)
                             }
 
-                            text: Player.album
-                            font.pixelSize: VLCStyle.fontSize_xxlarge
+                            // Redesign: "Title - Artist" under the cover
+                            text: [Player.title || Player.name, Player.artist].filter((t) => !!t).join(" - ")
+                            font.pixelSize: VLCStyle.fontSize_xlarge
                             horizontalAlignment: Text.AlignHCenter
                             color: centerTheme.fg.primary
-                            Accessible.description: qsTr("album")
+                            Accessible.description: qsTr("title")
 
                             property bool componentCompleted: false
 
@@ -704,11 +706,11 @@ FocusScope {
                                 value: centerContent.height > (artistLabel.y + artistLabel.height)
                             }
 
-                            text: Player.artist
-                            font.weight: Font.Light
+                            text: Player.album
+                            font.weight: Font.Normal
                             horizontalAlignment: Text.AlignHCenter
-                            color: centerTheme.fg.primary
-                            Accessible.description: qsTr("artist")
+                            color: centerTheme.fg.secondary
+                            Accessible.description: qsTr("album")
 
                             property bool componentCompleted: false
 
@@ -954,7 +956,8 @@ FocusScope {
                   resumeVisible)
 
         focus: true
-        title: Player.title
+        // fall back to the item name (e.g. the file name) when there is no title meta data
+        title: Player.title || Player.name
 
         pinControls: MainCtx.pinVideoControls
 
@@ -1013,8 +1016,13 @@ FocusScope {
 
             anchors.fill: parent
 
+            // Redesign: the single line title bar sits on a solid bar, like the control bar
+            readonly property bool _redesignBar: topBar._showCenterText && !MainCtx.pinVideoControls
+
             opacity: {
-                if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
+                if (_redesignBar) {
+                    return 0.95 // Dark/BG/A3 Transparent
+                } else if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
                     return 0.6
                 } else if (MainCtx.intfMainWindow.visibility === Window.FullScreen && MainCtx.hasEmbededVideo) {
                     return MainCtx.pinOpacity
@@ -1025,7 +1033,7 @@ FocusScope {
 
             tintColor: windowTheme.bg.primary
 
-            visible: MainCtx.pinVideoControls || (MainCtx.hasEmbededVideo && !rootPlayer.displayFadeRectangles)
+            visible: _redesignBar || MainCtx.pinVideoControls || (MainCtx.hasEmbededVideo && !rootPlayer.displayFadeRectangles)
         }
     }
 
