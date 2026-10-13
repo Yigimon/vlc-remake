@@ -15,19 +15,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
-#ifndef VLC_QT_WIDGETMENUSTYLE_HPP
-#define VLC_QT_WIDGETMENUSTYLE_HPP
+#ifndef VLC_QT_WIDGETSTYLE_HPP
+#define VLC_QT_WIDGETSTYLE_HPP
 
 class SystemPalette;
 
 /**
- * Applies the look of the redesign to the Qt Widgets menus (QMenu), such as
- * the main menu and the context menus, so that they follow the color scheme
- * of the interface instead of the platform style.
+ * Applies the look of the redesign to the Qt Widgets parts of the interface
+ * (menus, dialogs, preferences...), so that they follow the color scheme of
+ * the interface instead of the platform style:
+ *
+ * - the menus (QMenu) get a dedicated style sheet and palette
+ * - the application palette is replaced by one built from the interface
+ *   palette, unless the "system" color scheme is used
+ * - an application style sheet gives the common widgets (buttons, text
+ *   fields, combo boxes, tabs, group boxes, scroll bars, sliders...) the
+ *   shapes of the design
  *
  * It is meant to be called with the main palette of the interface whenever
  * that palette changes.
  */
-void applyWidgetMenuStyle(const SystemPalette& palette);
+void applyWidgetStyle(const SystemPalette& palette);
 
-#endif // VLC_QT_WIDGETMENUSTYLE_HPP
+/**
+ * Restores the application palette that was in use before
+ * applyWidgetStyle() replaced it, so that it can be read again as the
+ * system palette.
+ */
+void restoreSystemWidgetPalette();
+
+#endif // VLC_QT_WIDGETSTYLE_HPP

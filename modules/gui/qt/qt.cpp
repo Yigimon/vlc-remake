@@ -1490,6 +1490,13 @@ static void *Thread( void *obj )
             getSettings()->remove( QTSTYLE_KEY );
         }
     }
+    else
+    {
+        // Redesign: the Qt Widgets (dialogs, preferences) follow the palette
+        // of the interface (see style/widgetstyle.cpp), which the Fusion
+        // style supports on every platform:
+        QApplication::setStyle( QStringLiteral( "Fusion" ) );
+    }
 #undef QTSTYLE_KEY
 
     /* Launch */

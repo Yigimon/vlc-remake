@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "systempalette.hpp"
-#include "widgetmenustyle.hpp"
+#include "widgetstyle.hpp"
 #include <QGuiApplication>
 #include <QPalette>
 #include <QSettings>
@@ -391,6 +391,11 @@ void SystemPalette::updatePalette()
     switch(m_source)
     {
     case ColorSchemeModel::System:
+        // Redesign: the interface palette replaces the application palette
+        // (see applyWidgetStyle()), the system palette is read from the
+        // original one:
+        if (objectName() == QLatin1String("themePalette"))
+            restoreSystemWidgetPalette();
         makeSystemPalette();
         break;
     case ColorSchemeModel::Day:
@@ -414,9 +419,9 @@ void SystemPalette::updatePalette()
     }
     emit paletteChanged();
 
-    // Redesign: keep the Qt Widgets menus in sync with the main palette
+    // Redesign: keep the Qt Widgets (menus, dialogs) in sync with the main palette
     if (objectName() == QLatin1String("themePalette"))
-        applyWidgetMenuStyle(*this);
+        applyWidgetStyle(*this);
 
     bool hasCSDImage = m_palettePriv && m_palettePriv->hasCSDImages();
     if (m_hasCSDImage != hasCSDImage)

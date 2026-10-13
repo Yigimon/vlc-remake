@@ -283,8 +283,8 @@ libqt_plugin_la_SOURCES = \
 	style/colorcontext.hpp \
 	style/systempalette.cpp \
 	style/systempalette.hpp \
-	style/widgetmenustyle.cpp \
-	style/widgetmenustyle.hpp \
+	style/widgetstyle.cpp \
+	style/widgetstyle.hpp \
 	style/vlcicons.cpp 	style/vlcicons.hpp \
 	style/defaultthemeproviders.hpp \
 	style/systempalettethemeprovider.cpp \
