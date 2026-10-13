@@ -42,7 +42,7 @@ T.Pane {
     implicitHeight: Math.max(implicitBackgroundHeight + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    topInset: sliderY
+    topInset: inlinePosition ? 0 : sliderY
 
     bottomPadding: VLCStyle.margin_xsmall
 
@@ -55,7 +55,11 @@ T.Pane {
 
     // The redesign timeline control shows time, seek bar and duration inline in the
     // controls row, the separate slider row is not needed in that case:
-    readonly property bool _inlinePosition: playerControlLayout.model?.hasPositionWidget ?? false
+    readonly property bool inlinePosition: playerControlLayout.model?.hasPositionWidget ?? false
+
+    // Redesign bar metrics (inline layout): 11px vertical and 20px horizontal padding
+    readonly property real inlineVerticalPadding: VLCStyle.dp(11, VLCStyle.scale)
+    readonly property real inlineHorizontalPadding: VLCStyle.dp(20, VLCStyle.scale)
 
     property var menu: undefined
 
@@ -245,7 +249,7 @@ T.Pane {
                 id: bookmarksLoader
 
                 parent: root
-                active: MainCtx.mediaLibraryAvailable && !root._inlinePosition
+                active: MainCtx.mediaLibraryAvailable && !root.inlinePosition
                 source: "qrc:///qt/qml/VLC/MediaLibrary/Bookmarks.qml"
 
                 x: root.leftPadding + trackPositionSlider.x + row2.Layout.leftMargin
@@ -277,7 +281,7 @@ T.Pane {
             visible: children.length > 0
 
             children: {
-                if (root._inlinePosition)
+                if (root.inlinePosition)
                     return []
 
                 switch (textPosition) {
@@ -295,7 +299,7 @@ T.Pane {
             id: row2
 
             children: {
-                if (root._inlinePosition)
+                if (root.inlinePosition)
                     return []
 
                 switch (textPosition) {
@@ -326,17 +330,17 @@ T.Pane {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.leftMargin: VLCStyle.margin_large
-            Layout.rightMargin: VLCStyle.margin_large
+            Layout.leftMargin: root.inlinePosition ? root.inlineHorizontalPadding : VLCStyle.margin_large
+            Layout.rightMargin: root.inlinePosition ? root.inlineHorizontalPadding : VLCStyle.margin_large
 
             identifier: root.identifier
 
-            implicitHeight: MainCtx.pinVideoControls ? VLCStyle.controlLayoutHeightPinned
-                                                     : VLCStyle.controlLayoutHeight
+            implicitHeight: (MainCtx.pinVideoControls || root.inlinePosition) ? VLCStyle.controlLayoutHeightPinned
+                                                                              : VLCStyle.controlLayoutHeight
 
             visible: !model?.empty ?? false
 
-            Navigation.upItem: (!root._inlinePosition && trackPositionSlider.enabled) ? trackPositionSlider : root.Navigation.upItem
+            Navigation.upItem: (!root.inlinePosition && trackPositionSlider.enabled) ? trackPositionSlider : root.Navigation.upItem
 
             onRequestLockUnlockAutoHide: (lock) => root.requestLockUnlockAutoHide(lock)
 

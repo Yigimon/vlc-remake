@@ -45,6 +45,20 @@ T.Control {
         pressed: mouseArea.containsPress
     }
 
+    // Redesign: the play button is an accent colored rounded rectangle
+    readonly property ColorContext accentColorContext: ColorContext {
+        id: accentTheme
+
+        colorSet: ColorContext.ButtonAccent
+
+        enabled: root.enabled || root.paintOnly
+        // the play button usually holds the focus of the control bar,
+        // only highlight it for keyboard focus:
+        focused: root.visualFocus
+        hovered: root.cursorInside
+        pressed: mouseArea.containsPress
+    }
+
     property bool _keyOkPressed: false
 
     // Aliases
@@ -152,19 +166,7 @@ T.Control {
 
         hoverEnabled: true
 
-        readonly property bool cursorInside: {
-            if (!containsMouse)
-                return false
-
-            const center = (width / 2)
-            if (Helpers.pointInRadius( center - mouseX,
-                                       center - mouseY,
-                                       center )) {
-                return true
-            } else {
-                return false
-            }
-        }
+        readonly property bool cursorInside: containsMouse
 
         onCursorInsideChanged: {
             if (pressed && !cursorInside) {
@@ -217,10 +219,9 @@ T.Control {
                 return VLCIcons.play_filled
         }
 
-        color: cursorInside ? theme.accent
-                            : "black"  //foreground is always black
+        color: accentTheme.fg.primary
 
-        font.pixelSize: Math.round(parent.height / 1.7)
+        font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
 
         font.family: VLCIcons.fontFamily
 
@@ -240,14 +241,14 @@ T.Control {
     }
 
     background: Item {
-        implicitWidth: height
-        implicitHeight: VLCStyle.icon_medium
+        implicitWidth: VLCStyle.dp(54, VLCStyle.scale)
+        implicitHeight: VLCStyle.dp(28, VLCStyle.scale)
 
         Widgets.AnimatedBackground {
             anchors.fill: parent
-            anchors.margins: -border.width * 4
+            anchors.margins: -border.width * 2
 
-            radius: width / 2
+            radius: buttonRect.radius + border.width * 2
             border.pixelAligned: false
 
             enabled: theme.initialized
@@ -256,13 +257,19 @@ T.Control {
         }
 
         Rectangle {
+            id: buttonRect
+
             anchors.fill: parent
 
-            radius: width / 2
+            radius: VLCStyle.dp(6, VLCStyle.scale)
+            color: accentTheme.bg.primary
 
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#e25b01" }
-                GradientStop { position: 1.0; color: "#f89a06" }
+            Behavior on color {
+                enabled: accentTheme.initialized
+                ColorAnimation {
+                    duration: VLCStyle.duration_veryShort
+                    easing.type: Easing.InOutSine
+                }
             }
 
             Widgets.RoundedRectangleShadow {
@@ -277,26 +284,30 @@ T.Control {
                 color: theme.accent.alpha(0.29)
             }
 
+            // Press and hold feedback: fills the button, then playback stops.
             Rectangle {
                 id: innerRectangle
 
-                color: "white"
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
 
-                anchors.fill: parent
-                anchors.margins: _diminished ? (parent.width / 2)
-                                             : VLCStyle.dp(2, VLCStyle.scale)
+                width: _diminished ? parent.width : 0
+                visible: width > 0
 
-                radius: width / 2
+                radius: parent.radius
+                color: accentTheme.fg.primary
+                opacity: 0.35
 
                 property bool _diminished: false
 
                 onStateChanged: {
                     if (state === "diminished") {
-                        marginBehavior.enabled = true
+                        widthBehavior.enabled = true
                         bindingTimer.start()
                     } else {
                         bindingTimer.stop()
-                        marginBehavior.enabled = false
+                        widthBehavior.enabled = false
                         _diminished = false
                     }
                 }
@@ -310,11 +321,11 @@ T.Control {
                     onTriggered: innerRectangle._diminished = true
                 }
 
-                Behavior on anchors.margins {
-                    id: marginBehavior
+                Behavior on width {
+                    id: widthBehavior
                     NumberAnimation {
                         // Press and hold action must be triggered
-                        // as soon as the inner rectangle diminishes.
+                        // as soon as the button is filled.
                         // Subtract the interval here so that we satisfy
                         // that condition.
                         duration: mouseArea.pressAndHoldInterval - bindingTimer.interval

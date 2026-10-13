@@ -18,6 +18,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Templates as T
+import QtQuick.Shapes
 
 import VLC.MainInterface
 import VLC.Widgets as Widgets
@@ -97,8 +98,11 @@ T.Pane {
         Widgets.SliderExt {
             id: volControl
 
-            // FIXME: use VLCStyle
-            implicitWidth: VLCStyle.dp(100, VLCStyle.scale)
+            // Redesign: classic VLC volume wedge
+            implicitWidth: VLCStyle.dp(88, VLCStyle.scale)
+            implicitHeight: VLCStyle.dp(28, VLCStyle.scale)
+
+            handleWidth: 0
 
             // WARNING: Directly setting the insets break handle and background positioning.
             Binding on topInset {
@@ -110,8 +114,9 @@ T.Pane {
                 value: VLCStyle.touchHandlerMargin
             }
 
-            Layout.fillHeight: true
-            Layout.margins: VLCStyle.margin_xsmall
+            Layout.alignment: Qt.AlignVCenter
+            Layout.leftMargin: VLCStyle.margin_xsmall
+            Layout.rightMargin: VLCStyle.margin_xxsmall
 
             property bool _inhibitPlayerVolumeUpdate: false
 
@@ -126,6 +131,76 @@ T.Pane {
             property bool filterEvents: false
 
             color: root.sliderColor
+
+            background: Item {
+                id: wedge
+
+                x: volControl.leftPadding
+                y: volControl.topPadding + (volControl.availableHeight - height) / 2
+
+                implicitWidth: VLCStyle.dp(88, VLCStyle.scale)
+                implicitHeight: VLCStyle.dp(28, VLCStyle.scale)
+
+                width: volControl.availableWidth
+                height: Math.min(implicitHeight, volControl.availableHeight)
+
+                // smooth the slanted edges of the wedge
+                layer.enabled: true
+                layer.samples: 4
+
+                readonly property real _inset: VLCStyle.dp(2, VLCStyle.scale)
+                // height of the thin (left) end of the wedge
+                readonly property real _tip: height * 0.22
+
+                // track
+                Shape {
+                    anchors.fill: parent
+
+                    ShapePath {
+                        strokeWidth: volControl.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : -1
+                        strokeColor: volControl.colorContext.visualFocus
+                        fillColor: volControl.colorContext.bg.secondary
+
+                        startX: 0; startY: (wedge.height - wedge._tip) / 2
+                        PathLine { x: wedge.width; y: 0 }
+                        PathLine { x: wedge.width; y: wedge.height }
+                        PathLine { x: 0; y: (wedge.height + wedge._tip) / 2 }
+                        PathLine { x: 0; y: (wedge.height - wedge._tip) / 2 }
+                    }
+                }
+
+                // level, clipped to the current volume
+                Item {
+                    width: Math.round(volControl.visualPosition * wedge.width)
+                    height: wedge.height
+                    clip: true
+
+                    Shape {
+                        width: wedge.width
+                        height: wedge.height
+
+                        ShapePath {
+                            strokeWidth: -1
+
+                            fillGradient: LinearGradient {
+                                x1: 0; y1: 0
+                                x2: wedge.width; y2: 0
+                                // design colors, darkened by the 20% black overlay of the design
+                                GradientStop { position: 0.0; color: "#77A913" }
+                                GradientStop { position: 0.58; color: "#8E8713" }
+                                GradientStop { position: 0.79; color: "#A96113" }
+                                GradientStop { position: 1.0; color: "#CC2C2C" }
+                            }
+
+                            startX: wedge._inset; startY: (wedge.height - wedge._tip) / 2 + wedge._inset / 2
+                            PathLine { x: wedge.width - wedge._inset; y: wedge._inset }
+                            PathLine { x: wedge.width - wedge._inset; y: wedge.height - wedge._inset }
+                            PathLine { x: wedge._inset; y: (wedge.height + wedge._tip) / 2 - wedge._inset / 2 }
+                            PathLine { x: wedge._inset; y: (wedge.height - wedge._tip) / 2 + wedge._inset / 2 }
+                        }
+                    }
+                }
+            }
 
             from: 0
             to: root._maxvolpos

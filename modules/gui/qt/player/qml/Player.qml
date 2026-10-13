@@ -1294,7 +1294,8 @@ FocusScope {
 
         rightPadding: VLCStyle.applicationHorizontalMargin
         leftPadding: VLCStyle.applicationHorizontalMargin
-        bottomPadding: VLCStyle.applicationVerticalMargin + VLCStyle.margin_xsmall
+        topPadding: inlinePosition ? inlineVerticalPadding : 0
+        bottomPadding: VLCStyle.applicationVerticalMargin + (inlinePosition ? inlineVerticalPadding : VLCStyle.margin_xsmall)
 
         textPosition: (MainCtx.pinVideoControls)
                       ? ControlBar.TimeTextPosition.LeftRightSlider
@@ -1336,10 +1337,13 @@ FocusScope {
         background: Rectangle {
             id: controlBarBackground
 
-            visible: !MainCtx.hasEmbededVideo || MainCtx.pinVideoControls || !rootPlayer.displayFadeRectangles
+            // Redesign: with the inline timeline layout the controls sit on a solid bar
+            visible: !MainCtx.hasEmbededVideo || MainCtx.pinVideoControls || !rootPlayer.displayFadeRectangles || controlBar.inlinePosition
 
             opacity: {
-                if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
+                if (controlBar.inlinePosition && !MainCtx.pinVideoControls) {
+                    return 0.95 // Dark/BG/A3 Transparent
+                } else if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
                     return 0.6
                 } else if ((Window.visibility === Window.FullScreen) && MainCtx.hasEmbededVideo) {
                     return MainCtx.pinOpacity
