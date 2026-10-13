@@ -1116,19 +1116,21 @@ FocusScope {
 
             wheelEnabled: true
 
-            rightPadding: VLCStyle.applicationHorizontalMargin
+            // Redesign: the queue is a floating panel over the video
+            showOuterBackground: false
+            panelOpacity: 0.95
+
+            leftPadding: VLCStyle.margin_xsmall
+            rightPadding: VLCStyle.applicationHorizontalMargin + VLCStyle.margin_xsmall
             topPadding:  {
                 if (rootPlayer._controlsUnderVideo)
-                    return VLCStyle.margin_normal
+                    return VLCStyle.margin_xsmall
                 else
                     // NOTE: We increase the padding accordingly to avoid overlapping the TopBar.
-                    return topBar.reservedHeight
+                    return topBar.reservedHeight + VLCStyle.margin_xsmall
             }
-            bottomPadding: 0
-
-            background: Rectangle {
-                color: windowTheme.bg.primary.alpha(0.8)
-            }
+            // NOTE: The pane ends at the position slider, which can be within the control bar:
+            bottomPadding: Math.max(controlBar.sliderY, 0) + VLCStyle.margin_xsmall
 
             view.fadingEdge.pixelAlignedForDPR: !controlBar.visible
 
