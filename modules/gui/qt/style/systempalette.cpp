@@ -34,6 +34,14 @@ QColor setColorAlpha(const QColor& c1, float alpha)
     return c;
 }
 
+// mixes `ratio` of `color` into `base`
+QColor mixColors(const QColor& color, const QColor& base, float ratio)
+{
+    return QColor::fromRgbF(color.redF() * ratio + base.redF() * (1.f - ratio),
+                            color.greenF() * ratio + base.greenF() * (1.f - ratio),
+                            color.blueF() * ratio + base.blueF() * (1.f - ratio));
+}
+
 #ifndef _WIN32
 /**
  * function taken from QtBase gui/platform/unix/qgenericunixservices.cpp
@@ -305,37 +313,55 @@ SystemPalette::SystemPalette(QObject* parent)
 
 void SystemPalette::componentComplete()
 {
-    {
-        assert(m_ctx);
-        char* accentColor = var_InheritString(m_ctx->getIntf(), "qt-accent-color");
-        assert(accentColor);
+    assert(m_ctx);
 
-        if (!strcmp(accentColor, "default"))
-        {
-            // Use default
-        }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
-        else if (!strcmp(accentColor, "system"))
-        {
-            assert(qApp);
-            const auto palette = qApp->palette();
+    readAccentColor();
 
-            orange500 = palette.color(QPalette::Normal, QPalette::Accent);
-            orange800 = orange500.lighter(150);
-            m_customAccent = true;
-        }
-#endif
-        else
-        {
-            orange500 = QColor(accentColor);
-            orange800 = orange500.lighter(150);
-            m_customAccent = true;
-        }
-
-        free(accentColor);
-    }
+    // Redesign: the accent color can be changed at runtime (first run wizard)
+    connect(m_ctx, &MainCtx::accentColorChanged, this, [this]() {
+        readAccentColor();
+        updatePalette();
+    });
 
     updatePalette();
+}
+
+void SystemPalette::readAccentColor()
+{
+    assert(m_ctx);
+
+    // default accent
+    orange500 = QColor("#FF8800");
+    orange800 = QColor("#FF610A");
+    m_customAccent = false;
+
+    char* accentColor = var_InheritString(m_ctx->getIntf(), "qt-accent-color");
+    if (!accentColor)
+        return;
+
+    if (!strcmp(accentColor, "default"))
+    {
+        // Use default
+    }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    else if (!strcmp(accentColor, "system"))
+    {
+        assert(qApp);
+        const auto palette = qApp->palette();
+
+        orange500 = palette.color(QPalette::Normal, QPalette::Accent);
+        orange800 = orange500.lighter(150);
+        m_customAccent = true;
+    }
+#endif
+    else if (QColor color(accentColor); color.isValid())
+    {
+        orange500 = color;
+        orange800 = orange500.lighter(150);
+        m_customAccent = true;
+    }
+
+    free(accentColor);
 }
 
 ColorSchemeModel::ColorScheme SystemPalette::source() const
@@ -555,6 +581,9 @@ void SystemPalette::makeLightPalette()
     const QColor accent = m_customAccent ? orange500 : redesign::light::accent;
     const QColor accentBright = m_customAccent ? orange500.lighter(120) : redesign::light::accentBright;
     const QColor accentDim = m_customAccent ? orange500.darker(130) : redesign::light::accentDim;
+    // the accent backgrounds (selection, accent buttons) follow a custom accent as well:
+    const QColor bgAccentBright = m_customAccent ? mixColors(orange500, bgA2, 0.35f) : redesign::light::bgAccentBright;
+    const QColor bgAccentDark = m_customAccent ? mixColors(orange500, bgA2, 0.5f) : redesign::light::bgAccentDark;
 
     m_colorMap.clear();
 
@@ -787,6 +816,10 @@ void SystemPalette::makeDarkPalette()
     const QColor accent = m_customAccent ? orange500 : redesign::dark::accent;
     const QColor accentBright = m_customAccent ? orange500.lighter(120) : redesign::dark::accentBright;
     const QColor accentDim = m_customAccent ? orange500.darker(130) : redesign::dark::accentDim;
+    // the accent backgrounds (selection, accent buttons) follow a custom accent as well,
+    // the design values are the accent darkened to 26% (bright) and blended in BG/B1 (dark):
+    const QColor bgAccentBright = m_customAccent ? mixColors(orange500, Qt::black, 0.26f) : redesign::dark::bgAccentBright;
+    const QColor bgAccentDark = m_customAccent ? mixColors(orange500, bgB1, 0.08f) : redesign::dark::bgAccentDark;
 
     {
         C::ColorSet CS = C::View;

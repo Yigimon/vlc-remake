@@ -513,6 +513,12 @@ void MainCtx::reloadPrefs()
     loadPrefs(true);
 }
 
+void MainCtx::setAccentColor( const QString& color )
+{
+    config_PutPsz( "qt-accent-color", qtu( color ) );
+    emit accentColorChanged();
+}
+
 void MainCtx::onInputChanged( bool hasInput )
 {
     if( hasInput == false )

@@ -154,6 +154,11 @@ public:
     void classBegin() override { }
     void componentComplete() override;
 
+private:
+    void readAccentColor();
+
+public:
+
 public slots:
     void setSource(ColorSchemeModel::ColorScheme source);
     void setCtx(MainCtx* ctx);

@@ -240,6 +240,9 @@ public:
     inline bool albumSections() const { return m_albumSections; }
     inline bool lyricsMode() const { return m_lyricsMode; }
     inline ColorSchemeModel* getColorScheme() const { return m_colorScheme; }
+    /// Redesign: changes the accent color ("qt-accent-color": "default",
+    /// "system" or a color name) and updates the palettes of the interface
+    void setAccentColor( const QString& color );
     bool hasVLM() const;
     bool useClientSideDecoration() const;
     bool hasFirstrun() const;
@@ -574,6 +577,7 @@ signals:
     void albumSectionsChanged( bool );
     void lyricsModeChanged( bool );
     void colorSchemeChanged( QString );
+    void accentColorChanged();
     void useClientSideDecorationChanged();
     void hasToolbarMenuChanged();
 
