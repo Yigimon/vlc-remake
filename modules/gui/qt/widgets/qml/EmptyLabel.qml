@@ -93,7 +93,7 @@ T.Control {
             color: theme.fg.primary
 
             font.pixelSize: VLCStyle.fontSize_xxlarge
-            font.weight: Font.DemiBold
+            font.weight: Font.Medium
         }
     }
 }

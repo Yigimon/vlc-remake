@@ -21,7 +21,7 @@ import VLC.Style
 LabelExt {
     elide: Text.ElideRight
     font.pixelSize: VLCStyle.fontSize_large
-    font.weight: Font.DemiBold
+    font.weight: Font.Medium
     verticalAlignment: Text.AlignVCenter
     textFormat: Text.PlainText
 }

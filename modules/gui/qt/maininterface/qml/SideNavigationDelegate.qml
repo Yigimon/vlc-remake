@@ -160,7 +160,7 @@ T.ItemDelegate {
 
             font.pixelSize: VLCStyle.fontSize_normal
 
-            font.weight: control.checked ? Font.DemiBold : Font.Normal
+            font.weight: Font.Normal // redesign: active state is shown by color, not weight
 
             //button text is already exposed
             Accessible.ignored: true

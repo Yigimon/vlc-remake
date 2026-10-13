@@ -101,6 +101,14 @@
     <qresource prefix="/">
         <file alias="VLCIcons.ttf">pixmaps/VLCIcons.ttf</file>
     </qresource>
+    <qresource prefix="/fonts">
+        <file alias="Inter-Light.otf">pixmaps/fonts/Inter-Light.otf</file>
+        <file alias="Inter-Regular.otf">pixmaps/fonts/Inter-Regular.otf</file>
+        <file alias="Inter-Medium.otf">pixmaps/fonts/Inter-Medium.otf</file>
+        <file alias="Inter-SemiBold.otf">pixmaps/fonts/Inter-SemiBold.otf</file>
+        <file alias="Inter-Bold.otf">pixmaps/fonts/Inter-Bold.otf</file>
+        <file alias="DMMono-Regular.ttf">pixmaps/fonts/DMMono-Regular.ttf</file>
+    </qresource>
     <qresource prefix="/prefsmenu">
         <file alias="advprefs_audio.svg">pixmaps/prefs/advprefs_audio.svg</file>
         <file alias="advprefs_codec.svg">pixmaps/prefs/advprefs_codec.svg</file>

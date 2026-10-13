@@ -52,6 +52,8 @@ extern "C" char **environ;
 #endif
 
 #include <QApplication>
+#include <QFont>
+#include <QFontDatabase>
 #include <QDate>
 #include <QMutex>
 #include <QtQuickControls2/QQuickStyle>
@@ -911,6 +913,34 @@ static void *Thread( void *obj )
     /* Start the QApplication here */
     QApplication app( argc, argv );
     app.setProperty("initialStyle", app.style()->name());
+
+    {
+        // Bundled UI fonts of the redesign (SIL OFL 1.1, see pixmaps/fonts/OFL.txt)
+        static const char* const bundledFonts[] = {
+            ":/fonts/Inter-Light.otf",
+            ":/fonts/Inter-Regular.otf",
+            ":/fonts/Inter-Medium.otf",
+            ":/fonts/Inter-SemiBold.otf",
+            ":/fonts/Inter-Bold.otf",
+            ":/fonts/DMMono-Regular.ttf",
+        };
+        bool interLoaded = false;
+        for (const char* path : bundledFonts)
+        {
+            const int id = QFontDatabase::addApplicationFont(QString::fromLatin1(path));
+            if (id < 0)
+                msg_Warn(p_intf, "unable to load bundled font %s", path);
+            else if (QFontDatabase::applicationFontFamilies(id).contains(QLatin1String("Inter")))
+                interLoaded = true;
+        }
+
+        if (interLoaded)
+        {
+            QFont uiFont = QApplication::font();
+            uiFont.setFamily(QStringLiteral("Inter"));
+            QApplication::setFont(uiFont);
+        }
+    }
 
     {
         // Install custom translator:
