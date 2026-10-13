@@ -563,7 +563,10 @@ FocusScope {
 
             width: VLCStyle.isScreenReallySmall ? 0.0 : collapsedWidth
 
-            property real collapsedWidth: VLCStyle.icon_normal + VLCStyle.margin_small + VLCStyle.margin_xsmall + VLCStyle.applicationHorizontalMargin
+            // icon box + delegate paddings and insets + inner panel margins (see SideNavigationPane)
+            property real collapsedWidth: VLCStyle.icon_banner + VLCStyle.margin_xsmall + VLCStyle.margin_xxsmall
+                                          + 2 * sidebar.panelMargin + VLCStyle.margin_xxsmall
+                                          + VLCStyle.applicationHorizontalMargin
 
             delegateShowText: (state === "expanded")
 

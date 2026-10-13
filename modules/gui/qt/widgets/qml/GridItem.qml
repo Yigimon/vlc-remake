@@ -356,6 +356,9 @@ T.ItemDelegate {
             Widgets.ListLabel {
                 id: titleLabel
 
+                // Redesign: card titles are 16px
+                font.pixelSize: VLCStyle.fontSize_large
+
                 height: implicitHeight
                 color: root.selected
                     ? theme.fg.highlight

@@ -719,9 +719,14 @@ void SystemPalette::makeLightPalette()
     //TextField
     {
         C::ColorSet CS = C::TextField;
-        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim );
+        // Redesign: borderless field, accent border on focus
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA1);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA3);
+
+        setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent );
         setColor(CS, C::Decoration, C::Border, C::Focused, accent);
-        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerDim );
         setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
         setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
@@ -939,9 +944,14 @@ void SystemPalette::makeDarkPalette()
     //TextField
     {
         C::ColorSet CS = C::TextField;
-        setColor(CS, C::Decoration, C::Border, C::Normal, dividerBright );
+        // Redesign: borderless Dark/BG/A5 field, accent border on focus
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA5);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA4);
+
+        setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent );
         setColor(CS, C::Decoration, C::Border, C::Focused, accent );
-        setColor(CS, C::Decoration, C::Border, C::Hovered, fgA4 );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright );
         setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
         setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);

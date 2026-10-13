@@ -110,7 +110,9 @@ T.Button {
 
             color: button.foregroundColor
 
-            font.weight: (highlighted) ? Font.DemiBold : Font.Normal
+            // Redesign: 16px regular path, the current segment is brighter (see colorContext)
+            font.pixelSize: button.font.pixelSize
+            font.weight: Font.Normal
         }
     }
 }

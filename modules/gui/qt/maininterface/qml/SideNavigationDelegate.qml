@@ -102,19 +102,9 @@ T.ItemDelegate {
         color: theme.bg.primary
         border.color: visualFocus ? theme.visualFocus : "transparent"
 
+        // Redesign: the current entry is shown by its accent icon and brighter
+        // label only, there is no side indicator.
         radius: control.radius
-
-        Widgets.CurrentIndicator {
-            anchors {
-                left: parent.left
-                leftMargin: VLCStyle.margin_xxxsmall
-                verticalCenter: parent.verticalCenter
-            }
-            implicitHeight: parent.height / 2
-            visible: control.checked
-
-            radius: control.radius / 2
-        }
     }
 
     contentItem: RowLayout {
@@ -138,7 +128,7 @@ T.ItemDelegate {
 
                 color: (control.highlighted || control.checked) ? theme.accent : theme.fg.primary
 
-                font.pixelSize: VLCStyle.icon_banner
+                font.pixelSize: VLCStyle.icon_normal
             }
         }
 

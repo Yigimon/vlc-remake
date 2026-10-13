@@ -153,9 +153,10 @@ QtObject {
     readonly property int closedWidthPlaylist: MainCtx.dp(20, scale);
 
     readonly property int expandNavigationPaneWidth: MainCtx.dp(160, scale);
-    readonly property int buttonHeightNavigationPane: MainCtx.dp(35, scale);
+    readonly property int buttonHeightNavigationPane: MainCtx.dp(32, scale);
 
     readonly property int widthSearchInput: MainCtx.dp(200, scale);
+    readonly property int widthSearchField: MainCtx.dp(325, scale); // redesign: page header search field
     readonly property int widthSortBox: MainCtx.dp(150, scale);
     readonly property int widthTeletext: MainCtx.dp(280, scale);
     readonly property int widthExtendedSpacer: MainCtx.dp(128, scale);

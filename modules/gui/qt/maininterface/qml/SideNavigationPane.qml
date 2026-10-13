@@ -58,6 +58,15 @@ T.Pane {
         colorSet: ColorContext.Window
     }
 
+    readonly property ColorContext viewColorContext: ColorContext {
+        id: viewTheme
+        colorSet: ColorContext.View
+    }
+
+    // Redesign: the navigation lives on a rounded inner panel (Dark/BG/A4)
+    // placed on the content background (Dark/BG/B1)
+    readonly property real panelMargin: VLCStyle.margin_xsmall
+
     Accessible.name: qsTr("Sidebar")
 
     NavigationModel {
@@ -89,8 +98,22 @@ T.Pane {
     }
 
     background: Widgets.AcrylicBackground {
+        id: acrylicBackground
+
         enabled: root.useAcrylic
-        tintColor: theme.bg.primary
+        tintColor: viewTheme.bg.primary
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: root.panelMargin
+            anchors.leftMargin: root.panelMargin + root.safeAreaLeftMargin
+            anchors.rightMargin: root.panelMargin + root.rightPadding
+
+            radius: VLCStyle.dp(6, VLCStyle.scale)
+            color: theme.bg.secondary
+            // let the acrylic effect shine through when it is used
+            opacity: acrylicBackground.usingAcrylic ? 0.7 : 1.0
+        }
     }
 
     contentItem:  Item {
@@ -100,6 +123,10 @@ T.Pane {
         //would be parented (and layouted) to the Layout
         ColumnLayout {
             anchors.fill: parent
+            anchors.leftMargin: root.panelMargin + VLCStyle.margin_xxsmall
+            anchors.rightMargin: root.panelMargin
+            anchors.topMargin: root.panelMargin + VLCStyle.margin_small
+            anchors.bottomMargin: root.panelMargin + VLCStyle.margin_xxsmall
             spacing: VLCStyle.margin_xsmall
 
             Widgets.ListViewExt {
@@ -110,6 +137,9 @@ T.Pane {
 
                 clip: !fadingEdge.implicitClipping && (height < contentHeight)
                 focus: true
+
+                // Redesign: 32px entries, 14px apart
+                spacing: VLCStyle.dp(14, VLCStyle.scale)
 
                 model: navigationModel
 
@@ -122,8 +152,7 @@ T.Pane {
 
                 colorContext.colorSet: ColorContext.Window
 
-                fadingEdge.backgroundColor:  (root.background && (root.background.color.a >= 1.0)) ? root.background.color
-                                                                                                   : "transparent"
+                fadingEdge.backgroundColor: theme.bg.secondary
 
                 component DelegateAnimation : NumberAnimation {
                     easing.type: Easing.InOutSine

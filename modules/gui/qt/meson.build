@@ -914,6 +914,7 @@ qml_modules += {
         'widgets/qml/ScaledImage.qml',
         'widgets/qml/TextAutoScroller.qml',
         'widgets/qml/SearchBox.qml',
+        'widgets/qml/SearchField.qml',
         'widgets/qml/SliderExt.qml',
         'widgets/qml/SortControl.qml',
         'widgets/qml/SpinBoxExt.qml',

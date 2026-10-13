@@ -16,29 +16,18 @@ NavigableRow {
     required property SearchCtx search
 
 
-    //TODO: visible value of root.sort.available and MainCtx.hasGridListMode is initialised correctly but on first load still shows up
-    IconToolButton {
-        id: gridListBtn
-
-        visible: MainCtx.hasGridListMode
-
-        enabled: visible
-        width: VLCStyle.bannerButton_width
-        height: VLCStyle.bannerButton_height
-        font.pixelSize: VLCStyle.icon_banner
-        text: MainCtx.gridView ? VLCIcons.list : VLCIcons.grid
-        description: qsTr("List/Grid")
-        onClicked: MainCtx.gridView = !MainCtx.gridView
-    }
+    // Redesign: sort | grid/list | always visible search field
 
     SortControl {
         id: sortControl
+
+        anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
         visible: root.sort.available
         enabled: visible
         width: VLCStyle.bannerButton_width
         height: VLCStyle.bannerButton_height
-        font.pixelSize: VLCStyle.icon_banner
+        font.pixelSize: VLCStyle.icon_normal
         description: qsTr("Sort")
 
         model: root.sort.model
@@ -56,13 +45,30 @@ NavigableRow {
         }
     }
 
-    SearchBox {
+    //TODO: visible value of root.sort.available and MainCtx.hasGridListMode is initialised correctly but on first load still shows up
+    IconToolButton {
+        id: gridListBtn
+
+        anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+
+        visible: MainCtx.hasGridListMode
+
+        enabled: visible
+        width: VLCStyle.bannerButton_width
+        height: VLCStyle.bannerButton_height
+        font.pixelSize: VLCStyle.icon_normal
+        text: MainCtx.gridView ? VLCIcons.list : VLCIcons.grid
+        description: qsTr("List/Grid")
+        onClicked: MainCtx.gridView = !MainCtx.gridView
+    }
+
+    SearchField {
         id: searchBox
+
+        anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
         //TODO: initialise visible value with MainCtx
         visible: root.search.available
-        height: VLCStyle.bannerButton_height
-        buttonWidth: VLCStyle.bannerButton_width
 
         Binding {
             target: root.search
