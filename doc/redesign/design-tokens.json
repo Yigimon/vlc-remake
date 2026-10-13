@@ -1,0 +1,103 @@
+{
+  "_source": "Figma Community: VLC Redesign – ausgelesen am 2026-10-13 aus den lokalen Styles der Datei",
+  "color": {
+    "dark": {
+      "fg": {
+        "1": "#EAEAEA",
+        "2": "#C6C6C6",
+        "a1": "#969696",
+        "a2": "#8F8F8F",
+        "a3": "#6B6B6B",
+        "a4": "#404040",
+        "b1": "#161616"
+      },
+      "accent": {
+        "main": "#D37918",
+        "bright": "#FC9729",
+        "logo": "#D37918",
+        "dim": "#AB6314"
+      },
+      "bg": {
+        "accentBright": "#371F06",
+        "accentDark": "#1A1611",
+        "a1": "#222222",
+        "a2": "#1F1F1F",
+        "a3": "#1B1B1B",
+        "a4": "#191919",
+        "a5": "#151515",
+        "b1": "#0E0E0E",
+        "b2": "#090909",
+        "a3Transparent": { "hex": "#191919", "opacity": 0.95 },
+        "b1Transparent": { "hex": "#0E0E0E", "opacity": 0.95 },
+        "b2Transparent": { "hex": "#000000", "opacity": 0.8 }
+      },
+      "divider": {
+        "bright": "#373737",
+        "dim": "#222222"
+      }
+    },
+    "light": {
+      "fg": {
+        "1": "#EAEAEA",
+        "2": "#C6C6C6",
+        "a1": "#3C3C3C",
+        "a2": "#2E2E2E",
+        "a3": "#6B6B6B",
+        "a4": "#3B3B3B",
+        "b1": "#161616"
+      },
+      "accent": {
+        "main": "#E8851A",
+        "bright": "#FFA13B",
+        "logo": "#C2711A",
+        "dim": "#965916"
+      },
+      "bg": {
+        "accentBright": "#D8BA9A",
+        "accentDark": "#C6AB89",
+        "a1": "#EDEDED",
+        "a2": "#DDDDDD",
+        "a3": "#D5D5D5",
+        "a4": "#B3B3B3",
+        "a5": "#888888",
+        "b1": "#E7E7E7",
+        "b2": "#DEDEDE",
+        "a3Transparent": { "hex": "#D5D5D5", "opacity": 0.75 },
+        "b1Transparent": { "hex": "#E7E7E7", "opacity": 0.8 }
+      },
+      "divider": {
+        "bright": "#9B9B9B",
+        "dim": "#ACACAC"
+      }
+    },
+    "labelColors": ["#E15032", "#C49E23", "#19A234", "#18AAD3", "#185DD3", "#8E42FF", "#F052B3"]
+  },
+  "effect": {
+    "bgBlur": { "backgroundBlur": 50 },
+    "bgBlurShadow": {
+      "backgroundBlur": 50,
+      "dropShadow": { "x": 0, "y": 8, "blur": 15, "spread": 0, "color": "#000000", "opacity": 0.46 }
+    }
+  },
+  "typography": {
+    "fontFamily": { "ui": "Inter", "mono": "DM Mono" },
+    "fontWeight": { "light": 300, "regular": 400, "medium": 500, "semibold": 600, "bold": 700 },
+    "fontSize": { "xs": 10, "sm": 12, "base": 14, "md": 15, "lg": 16, "xl": 20, "2xl": 24, "3xl": 32 }
+  },
+  "radius": { "xs": 2, "sm": 3, "md": 4, "lg": 6, "xl": 10, "2xl": 12, "3xl": 14, "pill": 100 },
+  "spacing": {
+    "gap": [4, 5, 8, 10, 12, 14, 16, 20],
+    "gapDefault": 10,
+    "padding": ["2", "4", "8", "10", "20", "2 14 (Buttons/Chips)", "4 8", "8 10", "10 18 10 12"]
+  },
+  "frameSizes": {
+    "player": "1920x1080",
+    "settingsDialog": "1048x865",
+    "dialog": "1048x800",
+    "networkStreamDialog": "1048x631",
+    "newPlaylistDialog": "713x589",
+    "onboarding": "1090x759",
+    "contextMenuWidth": 265,
+    "sidePanelWidth": 400
+  }
+}

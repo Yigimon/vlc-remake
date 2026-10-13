@@ -469,90 +469,154 @@ QColor SystemPalette::getColor(ColorContext::ColorSet colorSet, ColorContext::Co
 }
 
 
+/*
+ * Redesign palettes, based on the "VLC Redesign" Figma community file.
+ * Token names in the comments refer to the color styles of that file
+ * (e.g. "Dark/BG/B1"). See design/DESIGN.md for the full token table.
+ */
+namespace redesign {
+namespace dark {
+    // foreground
+    const QColor fg1        {"#EAEAEA"}; // Dark/FG/1
+    const QColor fg2        {"#C6C6C6"}; // Dark/FG/2   (active / highlighted text)
+    const QColor fgA1       {"#969696"}; // Dark/FG/A1  (primary text)
+    const QColor fgA2       {"#8F8F8F"}; // Dark/FG/A2  (icons, nav text)
+    const QColor fgA3       {"#6B6B6B"}; // Dark/FG/A3  (secondary text)
+    const QColor fgA4       {"#404040"}; // Dark/FG/A4  (disabled, placeholder, tracks)
+    const QColor fgB1       {"#161616"}; // Dark/FG/B1  (text on accent)
+    // accent
+    const QColor accent     {"#D37918"}; // Dark/Accent/Main
+    const QColor accentBright{"#FC9729"}; // Dark/Accent/Bright
+    const QColor accentDim  {"#AB6314"}; // Dark/Accent/DIm
+    // background
+    const QColor bgAccentBright{"#371F06"}; // Dark/BG/Accent Bright
+    const QColor bgAccentDark {"#1A1611"};  // Dark/BG/Accent Dark
+    const QColor bgA1       {"#222222"}; // Dark/BG/A1
+    const QColor bgA2       {"#1F1F1F"}; // Dark/BG/A2
+    const QColor bgA3       {"#1B1B1B"}; // Dark/BG/A3
+    const QColor bgA4       {"#191919"}; // Dark/BG/A4  (side panel)
+    const QColor bgA5       {"#151515"}; // Dark/BG/A5  (input fields)
+    const QColor bgB1       {"#0E0E0E"}; // Dark/BG/B1  (main content)
+    const QColor bgB2       {"#090909"}; // Dark/BG/B2  (player)
+    const QColor card       {"#171717"}; // card / thumbnail placeholder
+    // dividers
+    const QColor dividerBright{"#373737"}; // Dark/Divider/Bright
+    const QColor dividerDim {"#222222"};   // Dark/Divider/Dim
+}
+
+namespace light {
+    const QColor fgA1       {"#3C3C3C"}; // Light/FG/A1
+    const QColor fgA2       {"#2E2E2E"}; // Light/FG/A2  (primary text)
+    const QColor fgA3       {"#6B6B6B"}; // Light/FG/A3  (secondary text)
+    const QColor fgA4       {"#3B3B3B"}; // Light/FG/A4
+    const QColor fgB1       {"#161616"}; // Light/FG/B1  (strongest text / text on accent)
+    // NOTE: Light/FG/1 and Light/FG/2 are identical to the dark values in the
+    // design file (near white) and unreadable on light backgrounds, they are
+    // intentionally not used here.
+    const QColor accent     {"#E8851A"}; // Light/Accent/Main
+    const QColor accentBright{"#FFA13B"}; // Light/Accent/Bright
+    const QColor accentLogo {"#C2711A"}; // Light/Accent/Logo
+    const QColor accentDim  {"#965916"}; // Light/Accent/DIm
+    const QColor bgAccentBright{"#D8BA9A"}; // Light/BG/Accent Bright
+    const QColor bgAccentDark {"#C6AB89"};  // Light/BG/Accent Dark
+    const QColor bgA1       {"#EDEDED"}; // Light/BG/A1  (side panel)
+    const QColor bgA2       {"#DDDDDD"}; // Light/BG/A2
+    const QColor bgA3       {"#D5D5D5"}; // Light/BG/A3
+    const QColor bgA4       {"#B3B3B3"}; // Light/BG/A4
+    const QColor bgA5       {"#888888"}; // Light/BG/A5
+    const QColor bgB1       {"#E7E7E7"}; // Light/BG/B1  (main content)
+    const QColor bgB2       {"#DEDEDE"}; // Light/BG/B2
+    const QColor card       {"#DDDDDD"}; // card / thumbnail placeholder (BG/A2)
+    const QColor dividerBright{"#9B9B9B"}; // Light/Divider/Bright
+    const QColor dividerDim {"#ACACAC"};   // Light/Divider/Dim
+}
+}
+
 void SystemPalette::makeLightPalette()
 {
     m_isDark = false;
 
     typedef ColorContext C;
+    using namespace redesign::light;
 
     m_colorMap.clear();
 
     //base set
     {
         C::ColorSet CS = C::View;
-        setColor(CS, C::Bg, C::Primary, C::Normal, lightGrey100 );
-        setColor(CS, C::Bg, C::Secondary, C::Normal, Qt::white );
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgB1);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, card);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, darkGrey300);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.3));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA2, 0.35));
 
-        setColor(CS, C::Fg, C::Secondary, C::Normal, setColorAlpha(Qt::black, 0.7));
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA3);
 
-        setColor(CS, C::Bg, C::Negative, C::Normal, QColor("#fde7e9")); //FIXME
-        setColor(CS, C::Fg, C::Negative, C::Normal, Qt::red);
+        setColor(CS, C::Bg, C::Negative, C::Normal, QColor("#fde7e9"));
+        setColor(CS, C::Fg, C::Negative, C::Normal, QColor("#C42B1C"));
 
-        setColor(CS, C::Bg, C::Neutral, C::Normal, QColor("#e4dab8")); //FIXME
-        setColor(CS, C::Fg, C::Neutral, C::Normal, orange800);
+        setColor(CS, C::Bg, C::Neutral, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Neutral, C::Normal, accentDim);
 
-        setColor(CS, C::Bg, C::Positive, C::Normal, QColor("#dff6dd")); //FIXME
-        setColor(CS, C::Fg, C::Positive, C::Normal, Qt::green);
+        setColor(CS, C::Bg, C::Positive, C::Normal, QColor("#dff6dd"));
+        setColor(CS, C::Fg, C::Positive, C::Normal, QColor("#0F7B0F"));
 
-        setColor(CS, C::Decoration, C::VisualFocus, C::Normal, setColorAlpha(Qt::black, 0.0) );
-        setColor(CS, C::Decoration, C::VisualFocus, C::Focused, Qt::black );
+        setColor(CS, C::Decoration, C::VisualFocus, C::Normal, setColorAlpha(accent, 0.0) );
+        setColor(CS, C::Decoration, C::VisualFocus, C::Focused, accent );
 
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::black, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, setColorAlpha(Qt::black, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::black, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::black, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim );
+        setColor(CS, C::Decoration, C::Border, C::Focused, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Decoration, C::Separator, C::Normal, QColor("#E0E0E0")); //FIXME not a predef
+        setColor(CS, C::Decoration, C::Separator, C::Normal, dividerDim);
 
-        setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, 0.22));
+        setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, 0.18));
 
-        setColor(CS, C::Decoration, C::Accent, C::Normal, orange800);
-        setColor(CS, C::Fg, C::Link, C::Normal, orange800 /* accent */);
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accent);
+        setColor(CS, C::Fg, C::Link, C::Normal, accentDim);
     }
 
     //window banner & miniplayer
     {
         C::ColorSet CS = C::Window;
-        setColor(CS, C::Bg, C::Primary, C::Normal, lightGrey400); //looks not white in figma more like #FDFDFD
-        setColor(CS, C::Bg, C::Secondary, C::Normal, lightGrey400);
-        setColor(CS, C::Decoration, C::Border, C::Normal, QColor{"#E0E0E0"}); //FIXME not a predef
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA3);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA1);
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim);
     }
 
     //badges
     {
         C::ColorSet CS = C::Badge;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(fgB1, 0.7));
+        setColor(CS, C::Fg, C::Primary, C::Normal, bgB1);
     }
 
     //tab button
     {
         C::ColorSet CS = C::TabButton;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(lightGrey300, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, lightGrey300);
-        setColor(CS, C::Bg, C::Primary, C::Hovered, lightGrey300);
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA2, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA2);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA2);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.2));
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::black);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA3);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA3, 0.4));
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgB1);
     }
 
     //tool button
     {
         C::ColorSet CS = C::ToolButton;
         setColor(CS, C::Bg, C::Primary, C::Normal, Qt::transparent);
-        setColor(CS, C::Bg, C::Secondary, C::Normal, lightGrey400);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA2);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.2));
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::black);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA3);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA3, 0.4));
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgB1);
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -563,41 +627,42 @@ void SystemPalette::makeLightPalette()
     //menubar
     {
         C::ColorSet CS = C::MenuBar;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(lightGrey700, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, lightGrey700);
-        setColor(CS, C::Bg, C::Primary, C::Hovered, lightGrey700);
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.2));
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA2, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA2);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA2);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA2, 0.35));
     }
 
     //Item
     {
         C::ColorSet CS = C::Item;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(lightGrey600, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha(lightGrey600, 0.5));
-        setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha(lightGrey600, 0.5));
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA2, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA2);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA2);
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, lightGrey600);
-        setColor(CS, C::Bg, C::Highlight, C::Focused, setColorAlpha(lightGrey600, 0.8));
-        setColor(CS, C::Bg, C::Highlight, C::Hovered, setColorAlpha(lightGrey600, 0.8));
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::black);
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Bg, C::Highlight, C::Focused, bgAccentDark);
+        setColor(CS, C::Bg, C::Highlight, C::Hovered, bgAccentDark);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fgB1);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::black);
-        setColor(CS, C::Fg, C::Secondary, C::Normal, setColorAlpha(Qt::black, 0.6));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA3);
 
-        setColor(CS, C::Decoration, C::Indicator, C::Normal, QColor("#9e9e9e")); //FIXME not a predef
-
+        setColor(CS, C::Decoration, C::Indicator, C::Normal, accent);
     }
 
     //Accent Buttons
     {
         C::ColorSet CS = C::ButtonAccent;
-        setColor(CS, C::Bg, C::Primary, C::Normal, orange800);
-        setColor(CS, C::Bg, C::Primary, C::Pressed, QColor("#e65609"));  //FIXME not a predef
-        setColor(CS, C::Bg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.2));
+        setColor(CS, C::Bg, C::Primary, C::Normal, accent);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, accentBright);
+        setColor(CS, C::Bg, C::Primary, C::Focused, accentBright);
+        setColor(CS, C::Bg, C::Primary, C::Pressed, accentDim);
+        setColor(CS, C::Bg, C::Primary, C::Disabled, bgA3);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.3));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA3, 0.6));
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -610,10 +675,10 @@ void SystemPalette::makeLightPalette()
         C::ColorSet CS = C::ButtonStandard;
         setColor(CS, C::Bg, C::Primary, C::Normal, Qt::transparent);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::black);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::black, 0.3));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA3);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(fgA3, 0.4));
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -624,62 +689,64 @@ void SystemPalette::makeLightPalette()
     //tooltip
     {
         C::ColorSet CS = C::Tooltip;
-        setColor(CS, C::Bg, C::Primary, C::Normal, lightGrey200);
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::black);
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA1);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgB1);
     }
 
     //slider
     {
         C::ColorSet CS = C::Slider;
-        setColor(CS, C::Bg, C::Primary, C::Normal, lightGrey400); //#EEEEEE on the designs
-        setColor(CS, C::Bg, C::Secondary, C::Normal, setColorAlpha("#lightGrey400", 0.2));
-        setColor(CS, C::Fg, C::Primary, C::Normal, orange800);
-        setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");  //FIXME
-        setColor(CS, C::Fg, C::Neutral, C::Normal, "#9D5D00");  //FIXME
-        setColor(CS, C::Fg, C::Negative, C::Normal, "#C42B1C");  //FIXME
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA5, 0.45));
+        setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha(bgA5, 0.65));
+        setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha(bgA5, 0.65));
+        setColor(CS, C::Bg, C::Secondary, C::Normal, setColorAlpha(bgA5, 0.2));
+        setColor(CS, C::Fg, C::Primary, C::Normal, accent);
+        setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");
+        setColor(CS, C::Fg, C::Neutral, C::Normal, "#9D5D00");
+        setColor(CS, C::Fg, C::Negative, C::Normal, "#C42B1C");
     }
 
     //Combo box
     {
         C::ColorSet CS = C::ComboBox;
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::black);
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.8));
-        setColor(CS, C::Bg, C::Secondary, C::Normal, lightGrey500);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA1);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA2);
     }
 
     //TextField
     {
         C::ColorSet CS = C::TextField;
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::black, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, orange800);
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::black, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::black, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim );
+        setColor(CS, C::Decoration, C::Border, C::Focused, accent);
+        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, darkGrey800); //FIXME
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::white); //FIXME
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fgB1);
     }
 
     //Switch
     {
         C::ColorSet CS = C::Switch;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.05));
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::black, 0.55));
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::black, 0.55));
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA2);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA3);
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerBright);
 
-        setColor(CS, C::Bg, C::Secondary, C::Normal, orange800);
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::white);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, accent);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgB1);
     }
 
     //SpinBox
     {
         C::ColorSet CS = C::SpinBox;
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::black, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, orange800);
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::black, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::black, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim );
+        setColor(CS, C::Decoration, C::Border, C::Focused, accent);
+        setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, darkGrey800); //FIXME
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::white); //FIXME
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fgB1);
     }
 }
 
@@ -690,82 +757,83 @@ void SystemPalette::makeDarkPalette()
     m_colorMap.clear();
 
     typedef ColorContext C;
+    using namespace redesign::dark;
 
     {
         C::ColorSet CS = C::View;
-        setColor(CS, C::Bg, C::Primary, C::Normal, darkGrey300 );
-        setColor(CS, C::Bg, C::Secondary, C::Normal, Qt::black );
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgB1);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, card);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white );
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.3) );
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
 
-        setColor(CS, C::Fg, C::Secondary, C::Normal, setColorAlpha(Qt::white, 0.6));
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA3);
 
-        setColor(CS, C::Bg, C::Negative, C::Normal, QColor(Qt::darkRed));
-        setColor(CS, C::Fg, C::Negative, C::Normal, Qt::red);
+        setColor(CS, C::Bg, C::Negative, C::Normal, QColor("#3A1410"));
+        setColor(CS, C::Fg, C::Negative, C::Normal, QColor("#E15032"));
 
-        setColor(CS, C::Bg, C::Neutral, C::Normal, QColor(Qt::darkYellow));
-        setColor(CS, C::Fg, C::Neutral, C::Normal, orange500);
+        setColor(CS, C::Bg, C::Neutral, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Neutral, C::Normal, accentBright);
 
-        setColor(CS, C::Bg, C::Positive, C::Normal, QColor(Qt::darkGreen));
-        setColor(CS, C::Fg, C::Positive, C::Normal, Qt::green);
+        setColor(CS, C::Bg, C::Positive, C::Normal, QColor("#0F2A14"));
+        setColor(CS, C::Fg, C::Positive, C::Normal, QColor("#19A234"));
 
-        setColor(CS, C::Decoration, C::VisualFocus, C::Normal, setColorAlpha(Qt::white, 0.0) );
-        setColor(CS, C::Decoration, C::VisualFocus, C::Focused, Qt::white );
+        setColor(CS, C::Decoration, C::VisualFocus, C::Normal, setColorAlpha(accent, 0.0) );
+        setColor(CS, C::Decoration, C::VisualFocus, C::Focused, accent );
 
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::white, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, setColorAlpha(Qt::white, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::white, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::white, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Focused, fgA4 );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, fgA4 );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, 0.22));
+        setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, 0.46));
 
-        setColor(CS, C::Decoration, C::Separator, C::Normal, darkGrey800);
+        setColor(CS, C::Decoration, C::Separator, C::Normal, dividerDim);
 
-        setColor(CS, C::Decoration, C::Accent, C::Normal, orange500);
-        setColor(CS, C::Fg, C::Link, C::Normal, orange500);
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accent);
+        setColor(CS, C::Fg, C::Link, C::Normal, accentBright);
     }
 
     //window banner & miniplayer
     {
         C::ColorSet CS = C::Window;
-        setColor(CS, C::Bg, C::Primary, C::Normal, Qt::black); //FIXME
-        setColor(CS, C::Bg, C::Secondary, C::Normal, Qt::black);
-        setColor(CS, C::Decoration, C::Border, C::Normal, darkGrey800); //FIXME not a predef
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA3);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA4);
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim);
     }
 
     //badges
     {
         C::ColorSet CS = C::Badge;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.8));
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::black);
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(fg2, 0.85));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgB1);
     }
 
     //tab button
     {
         C::ColorSet CS = C::TabButton;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(darkGrey800, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, darkGrey800);
-        setColor(CS, C::Bg, C::Primary, C::Hovered, darkGrey800);
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA1, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA1);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA1);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.2));
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::white);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fg2);
     }
 
     //tool button
     {
         C::ColorSet CS = C::ToolButton;
         setColor(CS, C::Bg, C::Primary, C::Normal, Qt::transparent);
-        setColor(CS, C::Bg, C::Secondary, C::Normal, Qt::black);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA1);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.2));
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::white);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fg2);
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -776,40 +844,42 @@ void SystemPalette::makeDarkPalette()
     //menubar
     {
         C::ColorSet CS = C::MenuBar;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(darkGrey800, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, darkGrey800);
-        setColor(CS, C::Bg, C::Primary, C::Hovered, darkGrey800);
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.2));
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA1, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA1);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA1);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
     }
 
     //Item
     {
         C::ColorSet CS = C::Item;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(darkGrey800, 0.0));
-        setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha(darkGrey800, 0.5));
-        setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha(darkGrey800, 0.5));
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA1, 0.0));
+        setColor(CS, C::Bg, C::Primary, C::Focused, bgA1);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, bgA1);
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, darkGrey800);
-        setColor(CS, C::Bg, C::Highlight, C::Focused, setColorAlpha(darkGrey800, 0.8));
-        setColor(CS, C::Bg, C::Highlight, C::Hovered, setColorAlpha(darkGrey800, 0.8));
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::white);
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentDark);
+        setColor(CS, C::Bg, C::Highlight, C::Focused, bgAccentBright);
+        setColor(CS, C::Bg, C::Highlight, C::Hovered, bgAccentBright);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fg2);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
-        setColor(CS, C::Fg, C::Secondary, C::Normal, setColorAlpha(Qt::white, 0.6));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgA3);
 
-        setColor(CS, C::Decoration, C::Indicator, C::Normal, QColor("#666666"));  //FIXME not a predef
+        setColor(CS, C::Decoration, C::Indicator, C::Normal, accent);
     }
 
     //Accent Buttons
     {
         C::ColorSet CS = C::ButtonAccent;
-        setColor(CS, C::Bg, C::Primary, C::Normal, orange500);
-        setColor(CS, C::Bg, C::Primary, C::Pressed, QColor("#e67a30"));  //FIXME not a predef
-        setColor(CS, C::Bg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.2));
+        setColor(CS, C::Bg, C::Primary, C::Normal, accent);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, accentBright);
+        setColor(CS, C::Bg, C::Primary, C::Focused, accentBright);
+        setColor(CS, C::Bg, C::Primary, C::Pressed, accentDim);
+        setColor(CS, C::Bg, C::Primary, C::Disabled, bgA1);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.3));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgB1);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -822,10 +892,10 @@ void SystemPalette::makeDarkPalette()
         C::ColorSet CS = C::ButtonStandard;
         setColor(CS, C::Bg, C::Primary, C::Normal, Qt::transparent);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.6));
-        setColor(CS, C::Fg, C::Primary, C::Focused, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Hovered, Qt::white);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(Qt::white, 0.3));
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Fg, C::Primary, C::Focused, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Hovered, fg2);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -836,63 +906,64 @@ void SystemPalette::makeDarkPalette()
     //tooltip
     {
         C::ColorSet CS = C::Tooltip;
-        setColor(CS, C::Bg, C::Primary, C::Normal, darkGrey200);
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA1);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fg2);
     }
 
     //slider
     {
         C::ColorSet CS = C::Slider;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha("#929292", 0.2)); //FIXME not in the palette
-        setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha("#929292", 0.4));
-        setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha("#929292", 0.4));
+        setColor(CS, C::Bg, C::Primary, C::Normal, fgA4);
+        setColor(CS, C::Bg, C::Primary, C::Focused, fgA3);
+        setColor(CS, C::Bg, C::Primary, C::Hovered, fgA3);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, setColorAlpha(fgA4, 0.5));
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, orange500);
-        setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");  //FIXME
-        setColor(CS, C::Fg, C::Neutral, C::Normal, "#9D5D00");  //FIXME
-        setColor(CS, C::Fg, C::Negative, C::Normal, "#C42B1C");  //FIXME
+        setColor(CS, C::Fg, C::Primary, C::Normal, accent);
+        setColor(CS, C::Fg, C::Positive, C::Normal, "#19A234");
+        setColor(CS, C::Fg, C::Neutral, C::Normal, "#C49E23");
+        setColor(CS, C::Fg, C::Negative, C::Normal, "#E15032");
     }
 
     //Combo box
     {
         C::ColorSet CS = C::ComboBox;
-        setColor(CS, C::Fg, C::Primary, C::Normal, Qt::white);
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(darkGrey300, 0.8));
-        setColor(CS, C::Bg, C::Secondary, C::Normal, darkGrey500);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA5);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA1);
     }
 
     //TextField
     {
         C::ColorSet CS = C::TextField;
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::white, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, orange500 );
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::white, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::white, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Focused, accent );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, fgA4 );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, lightGrey600); //FIXME
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::black); //FIXME
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fg1);
     }
 
     //Switch
     {
         C::ColorSet CS = C::Switch;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.05));
-        setColor(CS, C::Fg, C::Primary, C::Normal, setColorAlpha(Qt::white, 0.55));
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::white, 0.55));
-        setColor(CS, C::Bg, C::Secondary, C::Normal, orange500);
-        setColor(CS, C::Fg, C::Secondary, C::Normal, Qt::black);
+        setColor(CS, C::Bg, C::Primary, C::Normal, bgA1);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
+        setColor(CS, C::Decoration, C::Border, C::Normal, fgA4);
+        setColor(CS, C::Bg, C::Secondary, C::Normal, accent);
+        setColor(CS, C::Fg, C::Secondary, C::Normal, fgB1);
     }
 
     //Spinbox
     {
         C::ColorSet CS = C::SpinBox;
-        setColor(CS, C::Decoration, C::Border, C::Normal, setColorAlpha(Qt::white, 0.4) );
-        setColor(CS, C::Decoration, C::Border, C::Focused, orange500 );
-        setColor(CS, C::Decoration, C::Border, C::Hovered, setColorAlpha(Qt::white, 0.7) );
-        setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(Qt::white, 0.0) );
+        setColor(CS, C::Decoration, C::Border, C::Normal, dividerBright );
+        setColor(CS, C::Decoration, C::Border, C::Focused, accent );
+        setColor(CS, C::Decoration, C::Border, C::Hovered, fgA4 );
+        setColor(CS, C::Decoration, C::Border, C::Disabled, Qt::transparent );
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, lightGrey600); //FIXME
-        setColor(CS, C::Fg, C::Highlight, C::Normal, Qt::black); //FIXME
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Fg, C::Highlight, C::Normal, fg1);
     }
 }
 
