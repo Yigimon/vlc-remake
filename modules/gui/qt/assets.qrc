@@ -128,6 +128,13 @@
         <file alias="sample_complete.png">pixmaps/prefs/sample_complete.png</file>
         <file alias="sample_minimal.png">pixmaps/prefs/sample_minimal.png</file>
         <file alias="sample_skins.png">pixmaps/prefs/sample_skins.png</file>
+        <file alias="redesign_interface.svg">pixmaps/prefs/redesign/interface.svg</file>
+        <file alias="redesign_audio.svg">pixmaps/prefs/redesign/audio.svg</file>
+        <file alias="redesign_video.svg">pixmaps/prefs/redesign/video.svg</file>
+        <file alias="redesign_subtitles.svg">pixmaps/prefs/redesign/subtitles.svg</file>
+        <file alias="redesign_input.svg">pixmaps/prefs/redesign/input.svg</file>
+        <file alias="redesign_hotkeys.svg">pixmaps/prefs/redesign/hotkeys.svg</file>
+        <file alias="redesign_medialibrary.svg">pixmaps/prefs/redesign/medialibrary.svg</file>
     </qresource>
     <qresource prefix="/addons">
         <file alias="addon_default.svg">pixmaps/addons/addon_default.svg</file>

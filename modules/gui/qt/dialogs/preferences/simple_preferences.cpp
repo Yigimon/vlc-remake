@@ -34,6 +34,7 @@
 #include "util/color_scheme_model.hpp"
 #include "util/proxycolumnmodel.hpp"
 #include "medialibrary/mlrecentmediamodel.hpp"
+#include "util/colorizedsvgicon.hpp"
 
 #include <vlc_config_cat.h>
 #include <vlc_configuration.h>
@@ -70,8 +71,8 @@
 #include <wrl/client.h>
 #endif
 
-#define ICON_HEIGHT 48
-#define ICON_WIDTH 48
+#define ICON_HEIGHT 20
+#define ICON_WIDTH 20
 
 #ifdef _WIN32
 # include <vlc_charset.h>
@@ -223,29 +224,53 @@ private:
 SPrefsCatList::SPrefsCatList( qt_intf_t *_p_intf, QWidget *_parent ) :
                                   QWidget( _parent ), p_intf( _p_intf )
 {
-    QHBoxLayout *layout = new QHBoxLayout();
+    // Redesign: vertical list of categories grouped by sections (see the
+    // "Settings" frames of the design), on a rounded panel
+    setObjectName( QStringLiteral( "prefsCategories" ) );
+
+    QVBoxLayout *layout = new QVBoxLayout();
 
     /* Use autoExclusive buttons and a mapper as QButtonGroup can't
        set focus (keys) when it manages the buttons's exclusivity.
        See QT bugs 131 & 816 and QAbstractButton's source code. */
     QSignalMapper *mapper = new QSignalMapper( layout );
     connect( mapper, &QSignalMapper::mappedInt, this, &SPrefsCatList::switchPanel );
-    qreal dpr = devicePixelRatioF();
+
+    const QPalette& pal = palette();
+    const QColor iconColor = pal.color( QPalette::Normal, QPalette::ButtonText );
+    const QColor iconHoverColor = pal.color( QPalette::Normal, QPalette::Text );
+    const QColor iconCheckedColor = pal.color( QPalette::Normal, QPalette::Highlight );
+    const qreal dpr = devicePixelRatioF();
+    const QSize iconSize( ICON_WIDTH, ICON_HEIGHT );
+
+    auto makeIcon = [&]( const QString& file ) {
+        QIcon icon;
+        const auto addState = [&]( const QColor& color, QIcon::Mode mode, QIcon::State state ) {
+            QPixmap pixmap = ColorizedSvgIcon( file, color ).pixmap( iconSize * dpr );
+            pixmap.setDevicePixelRatio( dpr );
+            icon.addPixmap( pixmap, mode, state );
+        };
+        addState( iconColor, QIcon::Normal, QIcon::Off );
+        addState( iconHoverColor, QIcon::Active, QIcon::Off );
+        addState( iconCheckedColor, QIcon::Normal, QIcon::On );
+        addState( iconCheckedColor, QIcon::Active, QIcon::On );
+        return icon;
+    };
+
+    auto addSection = [&]( const QString& label ) {
+        QLabel *section = new QLabel( label, this );
+        section->setObjectName( QStringLiteral( "prefsCategorySection" ) );
+        layout->addWidget( section );
+    };
 
     auto addCategory = [&]( QString label, QString ltooltip, QString icon, int numb) {
         QToolButton * button = new QToolButton( this );
-        /* Scale icon to non native size outside of toolbutton to avoid widget size */
-        /* computation using native size */
-        QPixmap scaled = QPixmap( icon )
-              .scaledToHeight( ICON_HEIGHT * dpr, Qt::SmoothTransformation );
-        scaled.setDevicePixelRatio( dpr );
-        button->setIcon( scaled );
+        button->setIcon( makeIcon( icon ) );
         button->setText( label );
         button->setToolTip( ltooltip );
-        button->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
-        button->setIconSize( QSize( ICON_WIDTH, ICON_HEIGHT ) );
-        button->setMinimumWidth( 40 + ICON_WIDTH );
-        button->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+        button->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+        button->setIconSize( iconSize );
+        button->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
         button->setAutoRaise( true );
         button->setCheckable( true );
         button->setAutoExclusive( true );
@@ -254,22 +279,32 @@ SPrefsCatList::SPrefsCatList( qt_intf_t *_p_intf, QWidget *_parent ) :
         layout->addWidget( button );
     };
 
-    addCategory( qfut(INTF_TITLE), qfut(INTF_TOOLTIP), ":/prefsmenu/spref_interface.png" , SPrefsInterface );
-    addCategory( qfut(AUDIO_TITLE), qfut(AUDIO_TOOLTIP), ":/prefsmenu/spref_audio.png", SPrefsAudio );
-    addCategory( qfut(VIDEO_TITLE), qfut(VIDEO_TOOLTIP), ":/prefsmenu/spref_video.png", SPrefsVideo );
-    addCategory( qfut(SUBPIC_TITLE), qfut(SUBPIC_TOOLTIP), ":/prefsmenu/spref_subtitles.png", SPrefsSubtitles );
-    addCategory( qfut(INPUT_TITLE), qfut(INPUT_TOOLTIP), ":/prefsmenu/spref_input.png", SPrefsInputAndCodecs );
-    addCategory( qfut(HOTKEYS_TITLE), qfut(HOTKEYS_TOOLTIP), ":/prefsmenu/spref_hotkeys.png", SPrefsHotkeys );
+    addSection( qtr( "App" ) );
+    addCategory( qfut(INTF_TITLE), qfut(INTF_TOOLTIP), ":/prefsmenu/redesign_interface.svg" , SPrefsInterface );
+    addCategory( qfut(HOTKEYS_TITLE), qfut(HOTKEYS_TOOLTIP), ":/prefsmenu/redesign_hotkeys.svg", SPrefsHotkeys );
+
+    addSection( qtr( "Media" ) );
+    addCategory( qfut(AUDIO_TITLE), qfut(AUDIO_TOOLTIP), ":/prefsmenu/redesign_audio.svg", SPrefsAudio );
+    addCategory( qfut(VIDEO_TITLE), qfut(VIDEO_TOOLTIP), ":/prefsmenu/redesign_video.svg", SPrefsVideo );
+    addCategory( qfut(SUBPIC_TITLE), qfut(SUBPIC_TOOLTIP), ":/prefsmenu/redesign_subtitles.svg", SPrefsSubtitles );
     if ( vlc_ml_instance_get( p_intf ) != nullptr )
-        addCategory( qfut(ML_TITLE), qfut(ML_TOOLTIP), ":/prefsmenu/spref_medialibrary.png", SPrefsMediaLibrary );
+        addCategory( qfut(ML_TITLE), qfut(ML_TOOLTIP), ":/prefsmenu/redesign_medialibrary.svg", SPrefsMediaLibrary );
+
+    addSection( qtr( "System" ) );
+    addCategory( qfut(INPUT_TITLE), qfut(INPUT_TOOLTIP), ":/prefsmenu/redesign_input.svg", SPrefsInputAndCodecs );
+
+    layout->addStretch( 1 );
 
     qobject_cast<QToolButton*>(mapper->mapping(SPrefsInterface))->setChecked(true);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing( 1 );
+    layout->setContentsMargins( 6, 6, 6, 6 );
+    layout->setSpacing( 4 );
 
-    setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Preferred);
-    setMinimumWidth( ICON_HEIGHT * 6 + 10 );
+    setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+    setFixedWidth( 200 );
     setLayout( layout );
+
+    // The panel is drawn by the style sheet:
+    setAttribute( Qt::WA_StyledBackground, true );
 }
 
 void SPrefsCatList::switchPanel( int i )
@@ -359,18 +394,18 @@ SPrefsPanel::SPrefsPanel( qt_intf_t *_p_intf, QWidget *_parent,
 
     QVBoxLayout *panel_layout = new QVBoxLayout();
     QWidget *panel = new QWidget();
-    panel_layout->setContentsMargins(3, 3, 3, 3);
+    panel->setObjectName( QStringLiteral( "prefsPanelContent" ) );
+    panel_layout->setContentsMargins( 16, 4, 0, 0 );
 
-    // Title Label
+    // Title Label (redesign: its look is defined by the style sheet)
     QLabel *panel_label = new QLabel;
-    QFont labelFont = QApplication::font();
-    labelFont.setPointSize( labelFont.pointSize() + 6 );
-    panel_label->setFont( labelFont );
+    panel_label->setObjectName( QStringLiteral( "prefsPanelTitle" ) );
 
     // Title <hr>
     QFrame *title_line = new QFrame;
     title_line->setFrameShape(QFrame::HLine);
     title_line->setFrameShadow(QFrame::Sunken);
+    title_line->hide(); // redesign: the title is not underlined
 
     QFont italicFont = QApplication::font();
     italicFont.setItalic( true );
@@ -1059,6 +1094,7 @@ SPrefsPanel::SPrefsPanel( qt_intf_t *_p_intf, QWidget *_parent,
     panel_layout->addWidget( title_line );
 
     QScrollArea *scroller= new QScrollArea;
+    scroller->setObjectName( QStringLiteral( "prefsPanelScroller" ) );
     scroller->setWidget( panel );
     scroller->setWidgetResizable( true );
     scroller->setFrameStyle( QFrame::NoFrame );

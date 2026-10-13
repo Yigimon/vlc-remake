@@ -165,6 +165,24 @@ QString radioButtonImage(const char* name, const QColor& background, const QColo
     return styleImage(name, svg);
 }
 
+// Toggle switch, see the "Toggle" component of the design
+QString toggleImage(const char* name, const QColor& frame, const QColor& track, const QColor& knob, bool on)
+{
+    const QString knobRect = on ? QStringLiteral("x=\"23\" y=\"2\" width=\"15\" height=\"18\"")
+                                : QStringLiteral("x=\"2\" y=\"2\" width=\"15\" height=\"18\"");
+    const QString trackRect = on ? QStringLiteral("x=\"2\" y=\"2\" width=\"20\" height=\"18\"")
+                                 : QStringLiteral("x=\"18\" y=\"2\" width=\"20\" height=\"18\"");
+    return styleImage(name, QStringLiteral(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"22\" viewBox=\"0 0 40 22\">"
+        "<rect width=\"40\" height=\"22\" rx=\"5\" fill=\"%1\" fill-opacity=\"%2\"/>"
+        "<rect %3 rx=\"3\" fill=\"%4\" fill-opacity=\"%5\"/>"
+        "<rect %6 rx=\"3\" fill=\"%7\" fill-opacity=\"%8\"/>"
+        "</svg>")
+        .arg(svgColor(frame), svgOpacity(frame),
+             trackRect, svgColor(track), svgOpacity(track),
+             knobRect, svgColor(knob), svgOpacity(knob)));
+}
+
 class MenuStyler : public QObject
 {
 public:
@@ -293,6 +311,10 @@ struct WidgetColors
 
         // Dark: FG/A4, light: Divider/Bright
         indicatorBorder = dark ? track : palette.getColor(C::View, C::Decoration, C::Border, C::Hovered);
+
+        // Dark: BG/A5 (fields of the preferences), BG/B2 (frame of the toggles)
+        raisedField = palette.getColor(C::TextField, C::Bg, C::Primary, C::Normal);
+        deepField = palette.getColor(C::Slider, C::Bg, C::Secondary, C::Normal);
     }
 
     bool dark;
@@ -331,6 +353,8 @@ struct WidgetColors
 
     QColor placeholder;
     QColor indicatorBorder;
+    QColor raisedField;
+    QColor deepField;
 };
 
 void applyMenuStyle(MenuStyler* styler, const WidgetColors& colors)
@@ -823,7 +847,89 @@ QString makeApplicationStyleSheet(const WidgetColors& colors)
         // Splitters
         "QSplitter::handle {"
         "  background-color: %{separator};"
+        "}"
+
+        // Preferences, see the "Settings" frames of the design
+        "PrefsDialog {"
+        "  background-color: %{field};"
+        "}"
+        "PrefsDialog #prefsCategories {"
+        "  background-color: %{window};"
+        "  border-radius: 6px;"
+        "}"
+        "#prefsCategories QLabel#prefsCategorySection {"
+        "  color: %{secondaryText};"
+        "  padding: 8px 8px 2px 8px;"
+        "}"
+        "#prefsCategories QToolButton {"
+        "  background-color: transparent;"
+        "  color: %{text};"
+        "  border: none;"
+        "  border-radius: 4px;"
+        "  padding: 8px;"
+        "  font-weight: normal;"
+        "}"
+        "#prefsCategories QToolButton:hover {"
+        "  background-color: %{buttonHovered};"
+        "  color: %{strongText};"
+        "}"
+        "#prefsCategories QToolButton:checked {"
+        "  background-color: %{buttonHovered};"
+        "  color: %{strongText};"
+        "}"
+        "PrefsDialog QLabel#prefsPanelTitle {"
+        "  color: %{strongText};"
+        "  font-size: 18px;"
+        "  padding: 6px 0 6px 0;"
+        "}"
+        "QScrollArea#prefsPanelScroller, QScrollArea#prefsPanelScroller > QWidget#qt_scrollarea_viewport,"
+        "QWidget#prefsPanelContent {"
+        "  background-color: transparent;"
+        "}"
+        "PrefsDialog QGroupBox {"
+        "  border: none;"
+        "  border-top: 1px solid %{separator};"
+        "  border-radius: 0;"
+        "  margin-top: 30px;"
+        "  padding: 14px 0 0 0;"
+        "  font-size: 16px;"
+        "}"
+        "PrefsDialog QGroupBox::title {"
+        "  subcontrol-origin: margin;"
+        "  subcontrol-position: top left;"
+        "  left: 0;"
+        "  padding: 0 0 4px 0;"
+        "  color: %{strongText};"
+        "}"
+        "PrefsDialog QLineEdit, PrefsDialog QAbstractSpinBox, PrefsDialog QComboBox {"
+        "  background-color: %{raisedField};"
+        "  border-color: %{raisedField};"
+        "}"
+        "PrefsDialog QCheckBox::indicator {"
+        "  width: 40px;"
+        "  height: 22px;"
+        "}"
+        "PrefsDialog QCheckBox::indicator:unchecked {"
+        "  image: %{toggleOff};"
+        "}"
+        "PrefsDialog QCheckBox::indicator:unchecked:hover {"
+        "  image: %{toggleOffHover};"
+        "}"
+        "PrefsDialog QCheckBox::indicator:checked {"
+        "  image: %{toggleOn};"
+        "}"
+        "PrefsDialog QCheckBox::indicator:unchecked:disabled {"
+        "  image: %{toggleOffDisabled};"
+        "}"
+        "PrefsDialog QCheckBox::indicator:checked:disabled {"
+        "  image: %{toggleOnDisabled};"
         "}"))
+        .set("toggleOff", toggleImage("toggle-off", colors.deepField, colors.window, colors.indicatorBorder, false))
+        .set("toggleOffHover", toggleImage("toggle-off-hover", colors.deepField, colors.window, colors.secondaryText, false))
+        .set("toggleOn", toggleImage("toggle-on", colors.deepField, colors.accentBackground, colors.accent, true))
+        .set("toggleOffDisabled", toggleImage("toggle-off-disabled", colors.deepField, colors.deepField, colors.separator, false))
+        .set("toggleOnDisabled", toggleImage("toggle-on-disabled", colors.deepField, colors.deepField, colors.disabledText, true))
+        .set("raisedField", colors.raisedField)
         .set("chevronDown", chevronImage("chevron-down", colors.buttonText, false))
         .set("chevronUp", chevronImage("chevron-up", colors.buttonText, true))
         .set("checkBoxOff", checkBoxImage("checkbox-off", colors.field, colors.indicatorBorder, QColor()))

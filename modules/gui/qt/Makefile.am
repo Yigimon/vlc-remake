@@ -972,6 +972,13 @@ libqt_plugin_la_RES = \
 	pixmaps/prefs/sample_complete.png \
 	pixmaps/prefs/sample_minimal.png \
 	pixmaps/prefs/sample_skins.png \
+	pixmaps/prefs/redesign/interface.svg \
+	pixmaps/prefs/redesign/audio.svg \
+	pixmaps/prefs/redesign/video.svg \
+	pixmaps/prefs/redesign/subtitles.svg \
+	pixmaps/prefs/redesign/input.svg \
+	pixmaps/prefs/redesign/hotkeys.svg \
+	pixmaps/prefs/redesign/medialibrary.svg \
 	pixmaps/prefs/spref_audio.png \
 	pixmaps/prefs/spref_hotkeys.png \
 	pixmaps/prefs/spref_input.png \
