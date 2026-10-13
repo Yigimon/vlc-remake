@@ -1,6 +1,6 @@
 # VLC Redesign – Notiz zum Weitermachen
 
-Stand: 13.10.2026, 22:30 – Schritte 1–7 fertig
+Stand: 13.10.2026, 23:00 – Schritte 1–7 fertig, Schritt 8 vorbereitet
 
 ## Wo alles liegt
 
@@ -30,14 +30,20 @@ Stand: 13.10.2026, 22:30 – Schritte 1–7 fertig
 | 7a Einstellungen | `5924abf` |
 | 7b Onboarding (Erststart-Assistent), Akzentfarbe zur Laufzeit | `4efd9d2`, `8fc7136` |
 
-## Als Nächstes: Schritt 8 – Windows-Build
+## Schritt 8 – Windows-Build (vorbereitet, noch nicht gelaufen)
 
-- GitHub-Actions-Workflow im Fork (MSYS2/MinGW oder die VLC-Docker-Images für win64) oder eine
-  MSYS2-Anleitung zum lokalen Bauen
-- Windows-Theme-Provider prüfen (Farbschema „System“ nutzt dort die Redesign-Paletten)
-- Fusion-Stil und Menüs mit abgerundeten Ecken unter Windows prüfen (`useTranslucentMenus()`)
+- Workflow `.github/workflows/windows.yml`: Cross-Build wie das upstream-CI („win64“: Docker-Image
+  `vlc-debian-win64-posix`, vorkompilierte contribs, autotools), Ergebnis als portable ZIP (Artefakt
+  `vlc-redesign-win64`, mit Ordner `portable`)
+- Anleitung: `doc/redesign/WINDOWS.md` (GitHub Actions oder lokal mit Docker/WSL 2)
+- Der autotools-Build des Qt-Moduls (den der Windows-Build nutzt) ist unter Linux geprüft
+  (`/home/claude/vlc-at`, `make -C modules/gui/qt`)
+- Farbschema „System“ unter Windows: die Qt-Widgets nutzen jetzt auch dort die Redesign-Palette
+  (`SystemPalette::hasExternalColors()`)
+- Offen: Workflow im Fork laufen lassen (braucht den Push, siehe oben), Ergebnis unter Windows
+  ansehen (Menüs mit runden Ecken, Fensterleiste, Schriften, HiDPI)
 
 ## Offene Kleinigkeiten
 
-- Icons im „All“-Baum der Einstellungen noch alt/bunt, ausgewähltes Grid-Item gräulich,
+- Ausgewähltes Grid-Item gräulich,
   Medienbibliothek-Ansichten ungetestet (keine Medienbibliothek in der Testumgebung)
