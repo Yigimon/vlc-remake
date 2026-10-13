@@ -25,11 +25,117 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QFileDialog>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QLabel>
+#include <QPainter>
+#include <QPainterPath>
+#include <QVBoxLayout>
 
 #include <vlc_common.h>
 #include <vlc_configuration.h>
 #include <vlc_url.h>
 #include <vlc_cxx_helpers.hpp>
+
+namespace {
+
+// Redesign: previews of the color schemes (see the "Onboarding" frames of the design)
+QPixmap colorSchemePreview( ColorSchemeModel::ColorScheme scheme, qreal dpr )
+{
+    constexpr int size = 88;
+
+    QPixmap pixmap( QSize( size, size ) * dpr );
+    pixmap.setDevicePixelRatio( dpr );
+    pixmap.fill( Qt::transparent );
+
+    QPainter painter( &pixmap );
+    painter.setRenderHint( QPainter::Antialiasing );
+
+    const QRectF rect( 0.5, 0.5, size - 1, size - 1 );
+    QPainterPath shape;
+    shape.addRoundedRect( rect, 10, 10 );
+
+    const QColor light( "#DDDDDD" );
+    const QColor dark( "#191919" );
+
+    switch( scheme )
+    {
+        case ColorSchemeModel::Day:
+            painter.fillPath( shape, light );
+            break;
+        case ColorSchemeModel::Night:
+            painter.fillPath( shape, dark );
+            break;
+        default:
+        {
+            painter.fillPath( shape, dark );
+            QPainterPath half;
+            half.moveTo( rect.topLeft() );
+            half.lineTo( rect.right() - rect.width() / 3, rect.top() );
+            half.lineTo( rect.left() + rect.width() / 3, rect.bottom() );
+            half.lineTo( rect.bottomLeft() );
+            half.closeSubpath();
+            painter.fillPath( shape.intersected( half ), light );
+            break;
+        }
+    }
+
+    painter.setPen( QPen( QColor( "#404040" ), 1 ) );
+    painter.drawPath( shape );
+
+    return pixmap;
+}
+
+QString prettyKeyName( const QString& key )
+{
+    if( key == QLatin1String( "Left" ) )
+        return QStringLiteral( "\u2190" );
+    if( key == QLatin1String( "Right" ) )
+        return QStringLiteral( "\u2192" );
+    if( key == QLatin1String( "Up" ) )
+        return QStringLiteral( "\u2191" );
+    if( key == QLatin1String( "Down" ) )
+        return QStringLiteral( "\u2193" );
+    if( key.size() == 1 )
+        return key.toUpper();
+    return key;
+}
+
+// Key caps of the first binding of a hotkey ("Ctrl+Shift+s\tMedia Play")
+QWidget* keyCaps( const QString& bindings, QWidget* parent )
+{
+    QWidget* widget = new QWidget( parent );
+    QHBoxLayout* layout = new QHBoxLayout( widget );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->setSpacing( 4 );
+
+    const QString binding = bindings.section( QLatin1Char( '\t' ), 0, 0 );
+
+    QStringList keys;
+    if( binding == QLatin1String( "+" ) )
+        keys << binding;
+    else if( binding.endsWith( QLatin1String( "++" ) ) )
+        keys = binding.left( binding.size() - 2 ).split( QLatin1Char( '+' ) ) << QStringLiteral( "+" );
+    else if( !binding.isEmpty() )
+        keys = binding.split( QLatin1Char( '+' ) );
+
+    if( keys.isEmpty() )
+        keys << QStringLiteral( "\u2014" );
+
+    for( const QString& key : keys )
+    {
+        QLabel* cap = new QLabel( prettyKeyName( key ), widget );
+        cap->setObjectName( QStringLiteral( "wizardKeyCap" ) );
+        cap->setAlignment( Qt::AlignCenter );
+        layout->addWidget( cap );
+    }
+    layout->addStretch( 1 );
+
+    return widget;
+}
+
+} // anonymous namespace
 
 FirstRunWizard::FirstRunWizard( qt_intf_t *_p_intf, QWidget *parent)
                : QWizard( parent )
@@ -126,6 +232,291 @@ FirstRunWizard::FirstRunWizard( qt_intf_t *_p_intf, QWidget *parent)
     connect( ui.layoutGroup, qOverload<QAbstractButton*>( &QButtonGroup::buttonClicked ), this, &FirstRunWizard::updateLayoutLabel );
     connect( layoutImages, qOverload<QAbstractButton*>( &QButtonGroup::buttonClicked ), this, &FirstRunWizard::imageLayoutClick );
     connect( this->button(QWizard::FinishButton), &QPushButton::clicked, this, &FirstRunWizard::finish );
+
+    setupRedesign();
+}
+
+/**
+ * Redesign: applies the layout of the "Onboarding" frames of the design to
+ * the pages of the wizard (their look is defined by the style sheet of the
+ * application, see style/widgetstyle.cpp)
+ */
+void FirstRunWizard::setupRedesign()
+{
+    setMinimumSize( 760, 560 );
+    setOption( QWizard::NoBackButtonOnStartPage );
+
+    const qreal dpr = devicePixelRatioF();
+
+    /* Welcome page: logo, title and description above the privacy policy */
+    {
+        QWidget* header = new QWidget( ui.welcomePage );
+        QVBoxLayout* headerLayout = new QVBoxLayout( header );
+        headerLayout->setSpacing( 12 );
+
+        QLabel* logo = new QLabel( header );
+        logo->setPixmap( QIcon( QStringLiteral( ":/logo/vlc128.png" ) ).pixmap( QSize( 72, 72 ) ) );
+        logo->setAlignment( Qt::AlignHCenter );
+
+        QLabel* title = new QLabel( qtr( "Welcome to VLC!" ), header );
+        title->setObjectName( QStringLiteral( "wizardTitle" ) );
+        title->setAlignment( Qt::AlignHCenter );
+
+        QLabel* description = new QLabel( qtr( "VLC is a free and open source cross-platform multimedia player "
+                                               "and framework that plays most multimedia files as well as DVDs, "
+                                               "Audio CDs, VCDs, and various streaming protocols." ), header );
+        description->setObjectName( QStringLiteral( "wizardDescription" ) );
+        description->setAlignment( Qt::AlignHCenter );
+        description->setWordWrap( true );
+
+        headerLayout->addWidget( logo, 0, Qt::AlignHCenter );
+        headerLayout->addWidget( title, 0, Qt::AlignHCenter );
+        // NOTE: a word wrapped label must not be aligned in its layout,
+        //       otherwise it gets a too small width (and height)
+        headerLayout->addWidget( description );
+        headerLayout->setContentsMargins( 60, 8, 60, 16 );
+
+        ui.gridLayout->removeWidget( ui.horizontalFrame_policy );
+        ui.gridLayout->removeWidget( ui.horizontalFrame_prefs );
+        ui.gridLayout->addWidget( header, 0, 0 );
+        ui.gridLayout->addWidget( ui.horizontalFrame_policy, 1, 0 );
+        ui.gridLayout->addWidget( ui.horizontalFrame_prefs, 2, 0 );
+
+        // The media library option can not be changed here, the folders are
+        // set on the next page when the media library is available:
+        ui.horizontalFrame_prefs->hide();
+    }
+
+    /* Color scheme page: centered title, scheme cards with their name below */
+    {
+        ui.gridLayout_3->removeWidget( ui.colorLabel );
+        ui.gridLayout_3->addWidget( ui.colorLabel, 0, 0, 1, 3, Qt::AlignHCenter );
+        ui.colorLabel->setText( qtr( "Select your preferred theme and color." ) );
+
+        const struct {
+            QVBoxLayout* layout;
+            QAbstractButton* button;
+            QPushButton* image;
+            ColorSchemeModel::ColorScheme scheme;
+        } cards[] = {
+            { ui.verticalLayout_2, ui.systemButton, ui.daynightImage, ColorSchemeModel::System },
+            { ui.verticalLayout_4, ui.lightButton, ui.lightImage, ColorSchemeModel::Day },
+            { ui.verticalLayout_5, ui.darkButton, ui.darkImage, ColorSchemeModel::Night },
+        };
+
+        for( const auto& card : cards )
+        {
+            card.image->setAutoDefault( false );
+            card.image->setIcon( colorSchemePreview( card.scheme, dpr ) );
+            card.image->setIconSize( QSize( 88, 88 ) );
+            card.image->setCheckable( true );
+            card.image->setChecked( card.button->isChecked() );
+
+            card.layout->removeWidget( card.button );
+            card.layout->addWidget( card.button, 0, Qt::AlignHCenter );
+            card.layout->setAlignment( card.image, Qt::AlignHCenter );
+        }
+
+        setupAccentColors();
+    }
+
+    /* Layout page */
+    {
+        ui.gridLayout_4->removeWidget( ui.layoutLabel );
+        ui.gridLayout_4->addWidget( ui.layoutLabel, 0, 0, 1, 2, Qt::AlignHCenter );
+
+        const struct {
+            QVBoxLayout* layout;
+            QAbstractButton* button;
+            QPushButton* image;
+        } cards[] = {
+            { ui.verticalLayout_6, ui.modernButton, ui.modernImage },
+            { ui.verticalLayout_7, ui.classicButton, ui.classicImage },
+        };
+
+        for( const auto& card : cards )
+        {
+            card.image->setAutoDefault( false );
+            card.image->setCheckable( true );
+            card.image->setChecked( card.button->isChecked() );
+            // the selection border hugs the preview:
+            card.image->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+            card.layout->setAlignment( card.image, Qt::AlignHCenter );
+
+            card.layout->removeWidget( card.button );
+            card.layout->addWidget( card.button, 0, Qt::AlignHCenter );
+        }
+    }
+
+    /* Keyboard shortcuts page */
+    setPage( SHORTCUTS_PAGE, createShortcutsPage() );
+}
+
+/**
+ * Redesign: accent color swatches of the color scheme page
+ */
+void FirstRunWizard::setupAccentColors()
+{
+    // see the "Onboarding" frames of the design, the first one is the
+    // default accent of the interface
+    static const struct {
+        const char* value;
+        const char* color;
+    } accents[] = {
+        { "default", "#D37918" },
+        { "#E15032", "#E15032" },
+        { "#C49E23", "#C49E23" },
+        { "#19A234", "#19A234" },
+        { "#18AAD3", "#18AAD3" },
+        { "#185DD3", "#185DD3" },
+        { "#8E42FF", "#8E42FF" },
+        { "#F052B3", "#F052B3" },
+        { "#AFAFAF", "#AFAFAF" },
+    };
+
+    QString current;
+    {
+        char* value = config_GetPsz( "qt-accent-color" );
+        current = value ? qfu( value ) : QStringLiteral( "default" );
+        free( value );
+    }
+
+    QWidget* row = new QWidget( ui.colorSchemePage );
+    QHBoxLayout* rowLayout = new QHBoxLayout( row );
+    rowLayout->setContentsMargins( 0, 8, 0, 8 );
+    rowLayout->setSpacing( 14 );
+
+    accentGroup = new QButtonGroup( this );
+    accentGroup->setExclusive( true );
+
+    const QPalette& pal = palette();
+    // the ring of the swatches is invisible on the page background:
+    const QString background = pal.color( QPalette::Base ).name();
+    const QString ring = pal.color( QPalette::Text ).name();
+
+    bool checked = false;
+    for( const auto& accent : accents )
+    {
+        QPushButton* swatch = new QPushButton( row );
+        swatch->setObjectName( QStringLiteral( "wizardAccentSwatch" ) );
+        swatch->setCheckable( true );
+        // do not take the default button role from "Next" when clicked:
+        swatch->setAutoDefault( false );
+        swatch->setCursor( Qt::PointingHandCursor );
+        swatch->setProperty( "accentValue", QString::fromLatin1( accent.value ) );
+        swatch->setAccessibleName( QString::fromLatin1( accent.color ) );
+        swatch->setStyleSheet( QStringLiteral(
+            "QPushButton#wizardAccentSwatch {"
+            "  background-color: %1;"
+            "  border: 3px solid %2;"
+            "  border-radius: 15px;"
+            "  padding: 0;"
+            // the style sheet sizes win over setFixedSize(): 26 + 2 * 3 (border) = 32
+            "  min-width: 26px;"
+            "  max-width: 26px;"
+            "  min-height: 26px;"
+            "  max-height: 26px;"
+            "}"
+            "QPushButton#wizardAccentSwatch:hover {"
+            "  border-color: %3;"
+            "}"
+            "QPushButton#wizardAccentSwatch:checked {"
+            "  border-color: %4;"
+            "}" ).arg( QString::fromLatin1( accent.color ), background,
+                       pal.color( QPalette::Mid ).name(), ring ) );
+
+        if( !checked && current.compare( QString::fromLatin1( accent.value ), Qt::CaseInsensitive ) == 0 )
+        {
+            swatch->setChecked( true );
+            checked = true;
+        }
+
+        accentGroup->addButton( swatch );
+        rowLayout->addWidget( swatch );
+    }
+
+    connect( accentGroup, qOverload<QAbstractButton*>( &QButtonGroup::buttonClicked ),
+             this, &FirstRunWizard::accentClicked );
+
+    ui.gridLayout_3->addWidget( row, 6, 0, 1, 3, Qt::AlignHCenter );
+}
+
+void FirstRunWizard::accentClicked( QAbstractButton* button )
+{
+    // the interface follows the new accent immediately:
+    p_intf->p_mi->setAccentColor( button->property( "accentValue" ).toString() );
+    accentChanged = true;
+}
+
+/**
+ * Redesign: last page, the basic keyboard shortcuts
+ */
+QWizardPage* FirstRunWizard::createShortcutsPage()
+{
+    QWizardPage* page = new QWizardPage( this );
+    QVBoxLayout* layout = new QVBoxLayout( page );
+    layout->setSpacing( 0 );
+
+    QLabel* title = new QLabel( qtr( "Learn the basic keyboard shortcuts." ), page );
+    title->setObjectName( QStringLiteral( "wizardTitle" ) );
+    title->setAlignment( Qt::AlignHCenter );
+    layout->addSpacing( 16 );
+    layout->addWidget( title );
+    layout->addSpacing( 28 );
+
+    static const char* const hotkeys[] = {
+        "key-play-pause",
+        "key-toggle-fullscreen",
+        "key-jump-extrashort",
+        "key-jump+extrashort",
+        "key-vol-up",
+        "key-vol-down",
+        "key-prev",
+        "key-next",
+        "key-vol-mute",
+        "key-snapshot",
+        "key-audio-track",
+        "key-subtitle-track",
+    };
+
+    QGridLayout* grid = new QGridLayout();
+    grid->setHorizontalSpacing( 16 );
+    grid->setVerticalSpacing( 14 );
+
+    int index = 0;
+    for( const char* hotkey : hotkeys )
+    {
+        const module_config_t* item = config_FindConfig( hotkey );
+        if( !item || !item->psz_text )
+            continue;
+
+        char* value = config_GetPsz( hotkey );
+        const QString binding = value ? qfu( value ) : QString();
+        free( value );
+
+        QLabel* label = new QLabel( qfut( item->psz_text ), page );
+        label->setObjectName( QStringLiteral( "wizardShortcutLabel" ) );
+
+        const int row = index / 2;
+        const int column = ( index % 2 ) * 3;
+        grid->addWidget( label, row, column );
+        grid->addWidget( keyCaps( binding, page ), row, column + 1 );
+        ++index;
+    }
+    grid->setColumnStretch( 0, 2 );
+    grid->setColumnStretch( 1, 1 );
+    grid->setColumnMinimumWidth( 2, 24 );
+    grid->setColumnStretch( 3, 2 );
+    grid->setColumnStretch( 4, 1 );
+
+    layout->addLayout( grid );
+    layout->addStretch( 1 );
+
+    QLabel* hint = new QLabel( qtr( "You can change the shortcuts in the preferences." ), page );
+    hint->setObjectName( QStringLiteral( "wizardHint" ) );
+    layout->addWidget( hint );
+
+    return page;
 }
 
 /**
@@ -199,6 +590,10 @@ void FirstRunWizard::MLaddNewFolder()
  */
 void FirstRunWizard::updateColorLabel( QAbstractButton* btn )
 {
+    /* Redesign: the preview of the selected scheme is highlighted */
+    if( QAbstractButton* image = colorSchemeImages->button( colorSchemeGroup->id( btn ) ) )
+        image->setChecked( true );
+
     switch ( colorSchemeGroup->id(btn) )
     {
         case ColorSchemeModel::System:
@@ -219,6 +614,10 @@ void FirstRunWizard::updateColorLabel( QAbstractButton* btn )
  */
 void FirstRunWizard::updateLayoutLabel( QAbstractButton* btn )
 {
+    /* Redesign: the preview of the selected layout is highlighted */
+    if( QAbstractButton* image = layoutImages->button( ui.layoutGroup->id( btn ) ) )
+        image->setChecked( true );
+
     switch ( ui.layoutGroup->id( btn ) )
     {
         case MODERN:
@@ -273,6 +672,8 @@ int FirstRunWizard::nextId() const
             return COLOR_SCHEME_PAGE;
         case COLOR_SCHEME_PAGE:
             return LAYOUT_PAGE;
+        case LAYOUT_PAGE:
+            return SHORTCUTS_PAGE;
         default:
             return -1;
     }
@@ -323,6 +724,8 @@ void FirstRunWizard::reject()
 
     /* Colour Page settings */
     p_intf->p_mi->getColorScheme()->setCurrentIndex( 0 );
+    if( accentChanged )
+        p_intf->p_mi->setAccentColor( QStringLiteral( "default" ) );
 
     /* Layout Page settings */
     config_PutInt( "qt-menubar", 0 );
