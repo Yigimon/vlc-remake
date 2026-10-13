@@ -56,7 +56,9 @@ Repeater {
 
         Layout.fillWidth: (item && item.Layout.minimumWidth > 0)
         Layout.minimumWidth: Layout.fillWidth ? item.Layout.minimumWidth : (item ? item.implicitWidth : -1)
-        Layout.maximumWidth: Layout.fillWidth ? (item ? item.implicitWidth : -1) : -1
+        // Controls that request `Layout.fillWidth` themselves (such as the timeline) may grow
+        // without limit, other expanding controls grow up to their implicit width:
+        Layout.maximumWidth: Layout.fillWidth ? (item ? (item.Layout.fillWidth ? Number.POSITIVE_INFINITY : item.implicitWidth) : -1) : -1
 
         Layout.minimumHeight: 0
         Layout.maximumHeight: Math.min((item && item.implicitHeight <= 0) ? Number.MAX_VALUE : item.implicitHeight, repeater.availableHeight)

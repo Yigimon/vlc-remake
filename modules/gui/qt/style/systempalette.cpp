@@ -699,7 +699,9 @@ void SystemPalette::makeLightPalette()
         setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(bgA5, 0.45));
         setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha(bgA5, 0.65));
         setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha(bgA5, 0.65));
-        setColor(CS, C::Bg, C::Secondary, C::Normal, setColorAlpha(bgA5, 0.2));
+        // pill style (redesign timeline): track and inset progress
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgA2);
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
         setColor(CS, C::Fg, C::Primary, C::Normal, accent);
         setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");
         setColor(CS, C::Fg, C::Neutral, C::Normal, "#9D5D00");
@@ -916,7 +918,9 @@ void SystemPalette::makeDarkPalette()
         setColor(CS, C::Bg, C::Primary, C::Normal, fgA4);
         setColor(CS, C::Bg, C::Primary, C::Focused, fgA3);
         setColor(CS, C::Bg, C::Primary, C::Hovered, fgA3);
-        setColor(CS, C::Bg, C::Secondary, C::Normal, setColorAlpha(fgA4, 0.5));
+        // pill style (redesign timeline): track and inset progress
+        setColor(CS, C::Bg, C::Secondary, C::Normal, bgB2);
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
 
         setColor(CS, C::Fg, C::Primary, C::Normal, accent);
         setColor(CS, C::Fg, C::Positive, C::Normal, "#19A234");

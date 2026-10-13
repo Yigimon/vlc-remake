@@ -132,7 +132,8 @@ FocusScope {
                 Layout.minimumWidth: (containsVisibleItem(leftRepeater) && containsVisibleItem(rightRepeater)) ? playerControlLayout.layoutSpacing
                                                                                                                : 0
 
-                Layout.fillWidth: true
+                // Let the filling timeline control take the free space instead:
+                Layout.fillWidth: !(playerControlLayout.model?.hasPositionWidget ?? false)
                 visible: true
             }
 

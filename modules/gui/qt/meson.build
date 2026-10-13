@@ -790,6 +790,7 @@ qml_modules += {
        'player/qml/controlbarcontrols/OpenButton.qml',
        'player/qml/controlbarcontrols/PlaybackSpeedButton.qml',
        'player/qml/controlbarcontrols/PlayButton.qml',
+       'player/qml/controlbarcontrols/PositionWidget.qml',
        'player/qml/controlbarcontrols/PlayerSwitchButton.qml',
        'player/qml/controlbarcontrols/PlaylistButton.qml',
        'player/qml/controlbarcontrols/PreviousButton.qml',

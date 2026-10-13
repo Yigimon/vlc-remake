@@ -53,6 +53,10 @@ T.Pane {
     property real bookmarksHeight: VLCStyle.controlBarBookmarksHeight
     property bool showRemainingTime: true
 
+    // The redesign timeline control shows time, seek bar and duration inline in the
+    // controls row, the separate slider row is not needed in that case:
+    readonly property bool _inlinePosition: playerControlLayout.model?.hasPositionWidget ?? false
+
     property var menu: undefined
 
     signal requestLockUnlockAutoHide(bool lock)
@@ -241,7 +245,7 @@ T.Pane {
                 id: bookmarksLoader
 
                 parent: root
-                active: MainCtx.mediaLibraryAvailable
+                active: MainCtx.mediaLibraryAvailable && !root._inlinePosition
                 source: "qrc:///qt/qml/VLC/MediaLibrary/Bookmarks.qml"
 
                 x: root.leftPadding + trackPositionSlider.x + row2.Layout.leftMargin
@@ -273,6 +277,9 @@ T.Pane {
             visible: children.length > 0
 
             children: {
+                if (root._inlinePosition)
+                    return []
+
                 switch (textPosition) {
                 case ControlBar.TimeTextPosition.AboveSlider:
                     return [mediaTime, mediaRemainingTime]
@@ -288,6 +295,9 @@ T.Pane {
             id: row2
 
             children: {
+                if (root._inlinePosition)
+                    return []
+
                 switch (textPosition) {
                 case ControlBar.TimeTextPosition.Hide:
                 case ControlBar.TimeTextPosition.AboveSlider:
@@ -326,7 +336,7 @@ T.Pane {
 
             visible: !model?.empty ?? false
 
-            Navigation.upItem: trackPositionSlider.enabled ? trackPositionSlider : root.Navigation.upItem
+            Navigation.upItem: (!root._inlinePosition && trackPositionSlider.enabled) ? trackPositionSlider : root.Navigation.upItem
 
             onRequestLockUnlockAutoHide: (lock) => root.requestLockUnlockAutoHide(lock)
 

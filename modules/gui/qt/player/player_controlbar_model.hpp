@@ -40,6 +40,10 @@ class PlayerControlbarModel : public QObject
     Q_PROPERTY(ControlListModel* center READ center CONSTANT FINAL)
     Q_PROPERTY(ControlListModel* right READ right CONSTANT FINAL)
 
+    // true when the inline position widget (time | seek bar | duration) is part
+    // of this layout, the control bar then hides its own seek bar row:
+    Q_PROPERTY(bool hasPositionWidget READ hasPositionWidget NOTIFY controlListChanged FINAL)
+
 public:
     // When there is a need to add a new Player, just
     // add its identifier in this enum and set QML buttons layout
@@ -72,6 +76,7 @@ public:
 
     bool dirty() const;
     bool empty() const;
+    bool hasPositionWidget() const;
 
     std::array<QVector<int>, 3> serializeModels() const;
     void loadModels(const std::array<QVector<int>, 3>& array);

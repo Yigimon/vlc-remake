@@ -28,10 +28,20 @@ import VLC.MainInterface
 T.ProgressBar {
     id: control
 
-    readonly property real _hoveredScalingFactor: 1.8
+    // Redesign: tall rounded track with an inset progress and a bar shaped handle
+    property bool pillStyle: false
+    readonly property real _pillInset: pillStyle ? VLCStyle.dp(2, VLCStyle.scale) : 0
+    readonly property real _pillRadius: VLCStyle.dp(6, VLCStyle.scale)
+    readonly property real _pillInnerRadius: VLCStyle.dp(4, VLCStyle.scale)
+    readonly property real _pillHandleWidth: VLCStyle.dp(8, VLCStyle.scale)
+    readonly property color _progressColor: pillStyle ? theme.bg.highlight : theme.fg.primary
+
+    readonly property real _hoveredScalingFactor: pillStyle ? 1.0 : 1.8
     property int barHeight: VLCStyle.dp(5, VLCStyle.scale)
-    readonly property real _scaledBarHeight: control.barHeight * _hoveredScalingFactor
-    readonly property real _scaledY: (-control.barHeight / 2) * (control._hoveredScalingFactor - 1)
+    readonly property real _scaledBarHeight: pillStyle ? (control.barHeight - 2 * control._pillInset)
+                                                       : control.barHeight * _hoveredScalingFactor
+    readonly property real _scaledY: pillStyle ? control._pillInset
+                                               : (-control.barHeight / 2) * (control._hoveredScalingFactor - 1)
 
     property bool _isSeekPointsShown: true
     readonly property int _seekPointsDistance: VLCStyle.dp(2, VLCStyle.scale)
@@ -41,7 +51,7 @@ T.ProgressBar {
     property bool _currentChapterHovered: false
     property real _tooltipPosition: (Widgets.PointingToolTipAttached.instance?.pos.x ?? 0.0) / width
 
-    property color backgroundColor: theme.bg.primary
+    property color backgroundColor: pillStyle ? theme.bg.secondary : theme.bg.primary
     property real touchHandlerMargin: VLCStyle.touchHandlerMargin
 
     Keys.onRightPressed: Player.jumpFwd()
@@ -321,10 +331,10 @@ T.ProgressBar {
 
         Rectangle {
             id: sliderRect
-            visible: !Player.hasChapters
+            visible: control.pillStyle || !Player.hasChapters
             color: control.backgroundColor
             anchors.fill: parent
-            radius: implicitHeight
+            radius: control.pillStyle ? control._pillRadius : implicitHeight
         }
 
         Repeater {
@@ -332,6 +342,8 @@ T.ProgressBar {
 
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.leftMargin: control._pillInset
+            anchors.rightMargin: control._pillInset
             height: control.barHeight
             visible: Player.hasChapters
 
@@ -357,9 +369,16 @@ T.ProgressBar {
                     readonly property bool _hovered: hoverHandler.hovered &&
                                             (hoverHandler.point.position.x > x && hoverHandler.point.position.x < x+width)
 
-                    color: _currentChapter < 0 ? theme.fg.primary : control.backgroundColor
-                    width: sliderRect.width * seekpointsRect.endPosition - x - control._seekPointsDistance
-                    x: sliderRect.width * seekpointsRect.startPosition
+                    readonly property real _trackWidth: sliderRect.width - 2 * control._pillInset
+
+                    color: {
+                        if (_currentChapter < 0)
+                            return control._progressColor
+                        // upcoming chapters: subtle tint so the chapter boundaries stay visible
+                        return control.pillStyle ? Qt.alpha(theme.fg.primary, 0.12) : control.backgroundColor
+                    }
+                    width: _trackWidth * seekpointsRect.endPosition - x - control._seekPointsDistance
+                    x: _trackWidth * seekpointsRect.startPosition
 
                     Rectangle {
                         id: progressRepRect
@@ -368,9 +387,9 @@ T.ProgressBar {
                         anchors.bottom: parent.bottom
                         radius: parent.radius
 
-                        width: sliderRect.width * control.visualPosition - parent.x - control._seekPointsDistance
+                        width: parent._trackWidth * control.visualPosition - parent.x - control._seekPointsDistance
                         visible: parent._currentChapter === 0
-                        color: theme.fg.primary
+                        color: control._progressColor
 
                         // We use dynamic mutability group because time interpolation
                         // may induce rapid change:
@@ -405,9 +424,9 @@ T.ProgressBar {
                             target: control;
                             _currentChapterHovered: seekpointsRect._currentChapter === 0 ? false : control._currentChapterHovered
                         }
-                        PropertyChanges { target: seekpointsRect; height: control.barHeight }
-                        PropertyChanges { target: seekpointsRect; y: 0 }
-                        PropertyChanges { target: seekpointsRect; radius: control._seekPointsRadius }
+                        PropertyChanges { target: seekpointsRect; height: control.barHeight - 2 * control._pillInset }
+                        PropertyChanges { target: seekpointsRect; y: control._pillInset }
+                        PropertyChanges { target: seekpointsRect; radius: control.pillStyle ? control._pillInnerRadius : control._seekPointsRadius }
                     },
                     State {
                         name: "visibleLarge"
@@ -417,7 +436,7 @@ T.ProgressBar {
                         }
                         PropertyChanges { target: seekpointsRect; height: control._scaledBarHeight }
                         PropertyChanges { target: seekpointsRect; y: control._scaledY }
-                        PropertyChanges { target: seekpointsRect; radius: control._scaledSeekPointsRadius }
+                        PropertyChanges { target: seekpointsRect; radius: control.pillStyle ? control._pillInnerRadius : control._scaledSeekPointsRadius }
                     }
                 ]
 
@@ -429,11 +448,14 @@ T.ProgressBar {
 
         Rectangle {
             id: progressRect
-            width: control.visualPosition * parent.width
+            x: control._pillInset
+            y: control._pillInset
+            width: control.pillStyle ? Math.max(control._pillHandleWidth, control.visualPosition * (parent.width - 2 * control._pillInset))
+                                     : control.visualPosition * parent.width
             visible: !Player.hasChapters
-            color: theme.fg.primary
-            height: control.barHeight
-            radius: control._seekPointsRadius
+            color: control._progressColor
+            height: control.barHeight - 2 * control._pillInset
+            radius: control.pillStyle ? control._pillInnerRadius : control._seekPointsRadius
 
             // We use dynamic mutability group because time interpolation
             // may induce rapid change:
@@ -459,7 +481,7 @@ T.ProgressBar {
             height: control.barHeight
             opacity: 0.4
             color: theme.fg.neutral //FIXME buffer color ?
-            radius: control.barHeight
+            radius: control.pillStyle ? control._pillRadius : control.barHeight
 
             // TODO: Do not use `Binding` when minimum Qt is 6.12:
             Binding {
@@ -565,8 +587,33 @@ T.ProgressBar {
         }
     }
 
+    // Redesign handle: an accent bar at the end of the progress, always visible
+    Rectangle {
+        id: pillHandle
+
+        visible: control.pillStyle
+
+        x: control._pillInset + Math.max(0, control.visualPosition * (control.availableWidth - 2 * control._pillInset) - width)
+        y: control._pillInset
+        width: control._pillHandleWidth
+        height: control.barHeight - 2 * control._pillInset
+        radius: control._pillInnerRadius
+        color: theme.fg.primary
+
+        // TODO: Do not use `Binding` when minimum Qt is 6.12:
+        Binding {
+            target: pillHandle
+            property: "mutabilityGroup"
+            when: (pillHandle.mutabilityGroup !== undefined)
+            value: (Player.playingState === Player.PLAYING_STATE_PLAYING) ? Item.DynamicMutabilityGroup
+                                                                          : Item.StaticMutabilityGroup
+        }
+    }
+
     Rectangle {
         id: sliderHandle
+
+        opacity: control.pillStyle ? 0.0 : 1.0
 
         property int _size: control.barHeight * 3
 

@@ -101,6 +101,16 @@ bool PlayerControlbarModel::empty() const
     return m_empty;
 }
 
+bool PlayerControlbarModel::hasPositionWidget() const
+{
+    for (const ControlListModel* list : { m_left, m_center, m_right })
+    {
+        if (list && list->getControls().contains(ControlListModel::POSITION_WIDGET))
+            return true;
+    }
+    return false;
+}
+
 std::array<QVector<int>, 3> PlayerControlbarModel::serializeModels() const
 {
     return { left()->getControls(),
