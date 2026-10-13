@@ -17,6 +17,7 @@
  *****************************************************************************/
 
 import QtQuick
+import QtQuick.Templates as T
 import QtQuick.Layouts
 
 import VLC.MainInterface
@@ -24,7 +25,7 @@ import VLC.Widgets as Widgets
 import VLC.Util
 import VLC.Style
 
-Control {
+T.Control {
     padding: VLCStyle.focus_border
 
     Keys.priority: Keys.AfterItem

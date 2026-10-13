@@ -17,6 +17,7 @@
  *****************************************************************************/
 
 import QtQuick
+import QtQuick.Templates as T
 import QtQuick.Window
 
 
@@ -26,7 +27,7 @@ import VLC.Widgets as Widgets
 import VLC.Style
 
 
-Control {
+T.Control {
     id: highResolutionTimeWidget
 
     property bool paintOnly: false
