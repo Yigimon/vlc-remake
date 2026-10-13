@@ -35,6 +35,7 @@
 
 #include "dialogs/preferences/complete_preferences.hpp"
 #include "dialogs/preferences/preferences_widgets.hpp"
+#include "util/colorizedsvgicon.hpp"
 
 #include <vlc_modules.h>
 #include <cassert>
@@ -191,10 +192,14 @@ QTreeWidgetItem *PrefsTree::createCatNode( enum vlc_config_cat cat )
     item->name = qfu( vlc_config_subcat_GetName( general_subcat ) );
     item->help = qfu( vlc_config_subcat_GetHelp( general_subcat ) );
 
+    // Redesign: the icons follow the colors of the interface
+    const QColor iconColor = QApplication::palette().color( QPalette::Normal, QPalette::ButtonText );
+    const QList<QPair<QString, QString>> iconColors = { { QStringLiteral( "#757575" ), iconColor.name() } };
+
     QIcon icon;
     switch( cat )
     {
-#define CI(a,b) case a: icon = QIcon( b );break
+#define CI(a,b) case a: icon = ColorizedSvgIcon( b, {}, {}, {}, iconColors );break
         CI( CAT_AUDIO,     ":/prefsmenu/advprefs_audio.svg"    );
         CI( CAT_VIDEO,     ":/prefsmenu/advprefs_video.svg"    );
         CI( CAT_INPUT,     ":/prefsmenu/advprefs_codec.svg"    );
