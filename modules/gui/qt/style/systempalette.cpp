@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "systempalette.hpp"
+#include "widgetmenustyle.hpp"
 #include <QGuiApplication>
 #include <QPalette>
 #include <QSettings>
@@ -321,12 +322,14 @@ void SystemPalette::componentComplete()
 
             orange500 = palette.color(QPalette::Normal, QPalette::Accent);
             orange800 = orange500.lighter(150);
+            m_customAccent = true;
         }
 #endif
         else
         {
             orange500 = QColor(accentColor);
             orange800 = orange500.lighter(150);
+            m_customAccent = true;
         }
 
         free(accentColor);
@@ -410,6 +413,10 @@ void SystemPalette::updatePalette()
             this, &SystemPalette::CSDMetricsChanged);
     }
     emit paletteChanged();
+
+    // Redesign: keep the Qt Widgets menus in sync with the main palette
+    if (objectName() == QLatin1String("themePalette"))
+        applyWidgetMenuStyle(*this);
 
     bool hasCSDImage = m_palettePriv && m_palettePriv->hasCSDImages();
     if (m_hasCSDImage != hasCSDImage)
@@ -538,6 +545,11 @@ void SystemPalette::makeLightPalette()
 
     typedef ColorContext C;
     using namespace redesign::light;
+
+    // a custom accent color ("qt-accent-color") replaces the redesign accent:
+    const QColor accent = m_customAccent ? orange500 : redesign::light::accent;
+    const QColor accentBright = m_customAccent ? orange500.lighter(120) : redesign::light::accentBright;
+    const QColor accentDim = m_customAccent ? orange500.darker(130) : redesign::light::accentDim;
 
     m_colorMap.clear();
 
@@ -765,6 +777,11 @@ void SystemPalette::makeDarkPalette()
 
     typedef ColorContext C;
     using namespace redesign::dark;
+
+    // a custom accent color ("qt-accent-color") replaces the redesign accent:
+    const QColor accent = m_customAccent ? orange500 : redesign::dark::accent;
+    const QColor accentBright = m_customAccent ? orange500.lighter(120) : redesign::dark::accentBright;
+    const QColor accentDim = m_customAccent ? orange500.darker(130) : redesign::dark::accentDim;
 
     {
         C::ColorSet CS = C::View;

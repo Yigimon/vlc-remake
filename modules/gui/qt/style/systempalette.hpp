@@ -177,6 +177,8 @@ private:
 
     ColorSchemeModel::ColorScheme m_source = ColorSchemeModel::ColorScheme::Day;
     bool m_isDark = false;
+    // the user chose an accent color ("qt-accent-color"), it replaces the redesign accent
+    bool m_customAccent = false;
     bool m_hasCSDImage = false;
 
     std::unique_ptr<ExternalPaletteImpl> m_palettePriv;
