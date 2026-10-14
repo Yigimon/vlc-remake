@@ -9,8 +9,8 @@ des VideoLAN-CI.
 Der Workflow `.github/workflows/windows.yml` baut bei jedem Push auf `redesign` (Änderungen an der
 Qt-Oberfläche) oder auf Knopfdruck eine portable Windows-Version.
 
-1. Den Branch `redesign` in den Fork pushen (`git push fork redesign`).
-2. Im Fork unter **Actions** die Workflows einmalig aktivieren (bei Forks standardmäßig aus).
+1. Den Branch `redesign` nach https://github.com/Yigimon/vlc-remake pushen (`git push remake redesign`).
+2. Im Repository unter **Actions** die Workflows erlauben, falls GitHub danach fragt.
 3. **Windows build** → **Run workflow** (Branch `redesign`).
 4. Nach dem Lauf (mit vorkompilierten contribs grob geschätzt 1–2 Stunden) unten auf der Seite des Laufs das
    Artefakt **vlc-redesign-win64** herunterladen.
@@ -26,6 +26,8 @@ Hinweise:
   Gibt es diese nicht mehr, werden die neuesten genommen; fehlen auch die, baut `build.sh` alle
   Abhängigkeiten selbst (inkl. Qt, mehrere Stunden, Limit des Workflows: 6 Stunden).
 - Die Übersetzungen (Deutsch usw.) werden mitgebaut (`-l`).
+- Gebaut wird im Release-Modus (`-r`): optimiert und ohne die Debug-Prüfungen (`assert`), die eine
+  Debug-Version bei unerwarteten Zuständen beenden.
 - Das Redesign ändert nichts an `contrib/`, `extras/ci/` und `extras/package/`, damit die
   vorkompilierten contribs passen.
 
@@ -34,14 +36,14 @@ Hinweise:
 Voraussetzung: Docker (unter Windows: Docker Desktop mit WSL 2) und ca. 20 GB freier Platz.
 
 ```sh
-git clone https://github.com/Yigimon/vlc-redesign-ui.git vlc
+git clone https://github.com/Yigimon/vlc-remake.git vlc
 cd vlc
 git checkout redesign
 
 docker run --rm -it -v "$PWD:/build" -w /build \
   registry.videolan.org/vlc-debian-win64-posix:20260611225331 \
   bash -c 'git config --global --add safe.directory /build &&
-           extras/package/win32/build.sh -a x86_64 -p -l -o /build/vlc-redesign-win64'
+           extras/package/win32/build.sh -r -a x86_64 -p -l -o /build/vlc-redesign-win64'
 ```
 
 Danach liegt die portable Version im Ordner `vlc-redesign-win64` (für den portablen Modus dort

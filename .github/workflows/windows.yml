@@ -73,7 +73,7 @@ jobs:
               set -e
               git config --global --add safe.directory /build
               # -p: prebuilt contribs, -l: translations, -o: portable folder
-              extras/package/win32/build.sh -a x86_64 -p -l -o /build/vlc-redesign-win64
+              extras/package/win32/build.sh -r -a x86_64 -p -l -o /build/vlc-redesign-win64
             '
 
       - name: Package
