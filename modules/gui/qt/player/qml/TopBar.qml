@@ -152,15 +152,11 @@ FocusScope{
 
             playlistGroup.height = lineHeight
             playlistGroup.anchors.topMargin = 0
-            playlistGroup.extraRightMargin = Qt.binding(function() { return showCSD ? (width - csdDecorations.x) : 0 })
-
 
             implicitHeight = lineHeight
             offset += lineHeight
 
         } else {
-            playlistGroup.extraRightMargin = 0
-
             let left = undefined
             let right = undefined
             let logoPlaced = false
@@ -426,7 +422,10 @@ FocusScope{
     Row {
         id: playlistGroup
 
-        property int extraRightMargin: 0
+        // on the single line, the buttons are on the left of the window buttons
+        // NOTE: a declarative binding, assigning a Qt.binding() from _layout() made
+        //       the startup with a media crash (Qt 6.4)
+        property int extraRightMargin: (root._showCenterText && root.showCSD) ? (root.width - csdDecorations.x) : 0
 
         focus: true
         spacing: VLCStyle.margin_xxsmall
