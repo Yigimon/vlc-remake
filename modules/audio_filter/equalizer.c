@@ -496,8 +496,10 @@ static int PresetCallback( vlc_object_t *p_aout, char const *psz_cmd,
 
         lldiv_t d = lldiv( lroundf(preset->f_amp[i] * 10000000.f), 10000000 );
 
-        if( asprintf( &psz, "%s %lld.%07llu", i ? bands : "",
-                      d.quot, d.rem ) == -1 )
+        /* the remainder is negative for negative amplifications */
+        if( asprintf( &psz, "%s %s%lld.%07lld", i ? bands : "",
+                      ( d.quot == 0 && d.rem < 0 ) ? "-" : "",
+                      d.quot, llabs( d.rem ) ) == -1 )
             psz = NULL;
 
         free( bands );
