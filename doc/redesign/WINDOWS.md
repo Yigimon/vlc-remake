@@ -6,15 +6,16 @@ des VideoLAN-CI.
 
 ## Variante 1: GitHub Actions (empfohlen)
 
-Der Workflow `.github/workflows/windows.yml` baut bei jedem Push auf `redesign` (Änderungen an der
-Qt-Oberfläche) oder auf Knopfdruck eine portable Windows-Version.
+Der Workflow `.github/workflows/windows.yml` baut bei jedem Push auf `redesign` eine portable
+Windows-Version.
 
 1. Den Branch `redesign` nach https://github.com/Yigimon/vlc-remake pushen (`git push remake redesign`).
-2. Im Repository unter **Actions** die Workflows erlauben, falls GitHub danach fragt.
-3. **Windows build** → **Run workflow** (Branch `redesign`).
-4. Nach dem Lauf (mit vorkompilierten contribs grob geschätzt 1–2 Stunden) unten auf der Seite des Laufs das
+2. Im Repository unter **Actions** die Workflows erlauben, falls GitHub danach fragt. Der Lauf
+   **Windows build** startet mit dem Push (der Knopf **Run workflow** erscheint erst, wenn der Workflow
+   auch im Standard-Branch `main` liegt).
+3. Nach dem Lauf (mit vorkompilierten contribs grob geschätzt 1–2 Stunden) unten auf der Seite des Laufs das
    Artefakt **vlc-redesign-win64** herunterladen.
-5. Die ZIP-Datei im Artefakt entpacken und `vlc.exe` starten.
+4. Die ZIP-Datei im Artefakt entpacken und `vlc.exe` starten.
 
 Die Version läuft im **portablen Modus** (Ordner `portable` neben `vlc.exe`): Einstellungen und
 Medienbibliothek liegen in diesem Ordner, ein installiertes VLC behält seine eigenen Einstellungen.

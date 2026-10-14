@@ -7,13 +7,12 @@
 
 name: Windows build
 
+# NOTE: "Run workflow" (workflow_dispatch) is only offered by GitHub when
+#       the workflow is on the default branch, so every push builds
 on:
   workflow_dispatch:
   push:
     branches: [redesign]
-    paths:
-      - 'modules/gui/qt/**'
-      - '.github/workflows/windows.yml'
 
 concurrency:
   group: windows-${{ github.ref }}
