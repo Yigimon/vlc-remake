@@ -168,6 +168,9 @@ T.ComboBox {
         // NOTE: This Popup should be on top of other Popup(s) most of the time.
         z: 100
 
+        // keep the popup inside the window, e.g. for a combo box at the bottom
+        margins: VLCStyle.margin_xsmall
+
         width: Math.min(Math.max(control.width, implicitContentWidth + leftPadding + rightPadding),
                         control.Window.width - VLCStyle.margin_normal)
         padding: VLCStyle.margin_xxxsmall
