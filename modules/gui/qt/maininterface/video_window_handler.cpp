@@ -167,9 +167,11 @@ void VideoWindowHandler::setVideoSize(unsigned int w, unsigned int h, Qt::Window
                         const auto pslSize = playerSpecializationLoader->size().toSize(); // QML items have logical size too
                         const auto windowSize = m_window->size();
 
-                        const auto dW = (windowSize.width() - pslSize.width());
-                        const auto dH = (windowSize.height() - pslSize.height());
-                        assert(dW >= 0 && dH >= 0); // psl can not be bigger than the window
+                        // psl can not be bigger than the window, but its size can lag
+                        // behind the window while it is resized (e.g. when the crop of
+                        // the video is changed twice in a row)
+                        const auto dW = std::max(0, windowSize.width() - pslSize.width());
+                        const auto dH = std::max(0, windowSize.height() - pslSize.height());
 
                         msg_Dbg( m_intf, "Autoresize interface window size compensation: %ix%i", dW, dH );
 
