@@ -45,5 +45,7 @@ Stand: 13.10.2026, 23:00 – Schritte 1–7 fertig, Schritt 8 vorbereitet
 
 ## Offene Kleinigkeiten
 
-- Ausgewähltes Grid-Item gräulich,
-  Medienbibliothek-Ansichten ungetestet (keine Medienbibliothek in der Testumgebung)
+- Medienbibliothek-Ansichten (Videos, Musik, Playlists) ungetestet: VLC braucht medialibrary >= 0.13,
+  Debian hat 0.12.3, und die VideoLAN-Server sind aus der Testumgebung nicht erreichbar
+- Figma ist nur über den eingebauten Browser erreichbar (Tab `seed`), der in späteren Sitzungen fehlen kann;
+  Design-Werte stehen in `DESIGN.md` / `design-tokens.json`
