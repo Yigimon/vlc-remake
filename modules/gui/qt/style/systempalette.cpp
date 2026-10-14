@@ -921,9 +921,11 @@ void SystemPalette::makeDarkPalette()
         setColor(CS, C::Bg, C::Primary, C::Focused, bgA1);
         setColor(CS, C::Bg, C::Primary, C::Hovered, bgA1);
 
-        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentDark);
-        setColor(CS, C::Bg, C::Highlight, C::Focused, bgAccentBright);
-        setColor(CS, C::Bg, C::Highlight, C::Hovered, bgAccentBright);
+        // selected entries: Dark/BG/Accent Bright (Dark/BG/Accent Dark is
+        // barely visible on the content background), a bit brighter on hover
+        setColor(CS, C::Bg, C::Highlight, C::Normal, bgAccentBright);
+        setColor(CS, C::Bg, C::Highlight, C::Focused, bgAccentBright.lighter(125));
+        setColor(CS, C::Bg, C::Highlight, C::Hovered, bgAccentBright.lighter(125));
         setColor(CS, C::Fg, C::Highlight, C::Normal, fg2);
 
         setColor(CS, C::Fg, C::Primary, C::Normal, fgA1);
