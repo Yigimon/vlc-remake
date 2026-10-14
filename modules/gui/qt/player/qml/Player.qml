@@ -71,7 +71,10 @@ FocusScope {
     // Events
 
     Component.onCompleted: MainCtx.preferHotkeys = true
-    Component.onDestruction: MainCtx.preferHotkeys = false
+    Component.onDestruction: {
+        MainCtx.preferHotkeys = false
+        PlayerEffects.panelVisible = false
+    }
 
     Keys.priority: Keys.AfterItem
     Keys.onPressed: (event) => {
@@ -145,7 +148,30 @@ FocusScope {
     PlayerPlaylistVisibilityFSM {
         id: playlistVisibility
 
-        onIsPlaylistVisibleChanged: lockUnlockAutoHide(isPlaylistVisible)
+        onIsPlaylistVisibleChanged: {
+            lockUnlockAutoHide(isPlaylistVisible)
+
+            // Redesign: the play queue and the effects share the right side
+            if (isPlaylistVisible && PlayerEffects.panelVisible)
+                PlayerEffects.panelVisible = false
+        }
+    }
+
+    Connections {
+        target: PlayerEffects
+
+        function onPanelVisibleChanged() {
+            rootPlayer.lockUnlockAutoHide(PlayerEffects.panelVisible)
+
+            if (PlayerEffects.panelVisible) {
+                if (playlistVisibility.isPlaylistVisible)
+                    playlistVisibility.togglePlaylistVisibility()
+                effectsPanelLoader.active = true
+                effectsPanelLoader.forceActiveFocus(Qt.OtherFocusReason)
+            } else if (effectsPanelLoader.activeFocus) {
+                controlBar.forceActiveFocus(Qt.OtherFocusReason)
+            }
+        }
     }
 
     Connections {
@@ -943,9 +969,13 @@ FocusScope {
         topMargin: VLCStyle.applicationVerticalMargin
         sideMargin: VLCStyle.applicationHorizontalMargin
 
-        textWidth: playlistVisibility.isPlaylistVisible
-                 ? rootPlayer.width - playlistpopup.width
-                 : rootPlayer.width
+        textWidth: {
+            if (playlistVisibility.isPlaylistVisible)
+                return rootPlayer.width - playlistpopup.width
+            if (effectsPanelLoader.visible)
+                return rootPlayer.width - effectsPanelLoader.width
+            return rootPlayer.width
+        }
 
         // NOTE: With pinned controls, the top controls are hidden when switching to
         //       fullScreen. Except when resume is visible
@@ -1190,6 +1220,57 @@ FocusScope {
                     function onWidthChanged() {
                         resizeHandle._updateFromMainCtx()
                     }
+                }
+            }
+        }
+    }
+
+    // Redesign: audio and video effects, at the place of the play queue
+    Loader {
+        id: effectsPanelLoader
+
+        anchors {
+            top: (rootPlayer._controlsUnderVideo) ? topBar.bottom
+                                                  : parent.top
+            right: parent.right
+            bottom: parent.bottom
+
+            bottomMargin: parent.height - rootPlayer.positionSliderY
+        }
+
+        // created when it is shown for the first time
+        active: false
+        visible: PlayerEffects.panelVisible && status === Loader.Ready
+        focus: false
+
+        width: item ? Math.min(item.implicitWidth, rootPlayer.width) : 0
+
+        Navigation.parentItem: rootPlayer
+        Navigation.upItem: topBar
+        Navigation.downItem: Player.isInteractive ? toggleControlBarButton : controlBar
+
+        sourceComponent: EffectsPanel {
+            id: effectsPanel
+
+            focus: true
+
+            leftPadding: VLCStyle.margin_xsmall
+            rightPadding: VLCStyle.applicationHorizontalMargin + VLCStyle.margin_xsmall
+            topPadding: {
+                if (rootPlayer._controlsUnderVideo)
+                    return VLCStyle.margin_xsmall
+                else
+                    // NOTE: We increase the padding accordingly to avoid overlapping the TopBar.
+                    return topBar.reservedHeight + VLCStyle.margin_xsmall
+            }
+            // NOTE: The pane ends at the position slider, which can be within the control bar:
+            bottomPadding: Math.max(controlBar.sliderY, 0) + VLCStyle.margin_xsmall
+
+            Keys.priority: Keys.AfterItem
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Escape) {
+                    PlayerEffects.panelVisible = false
+                    event.accepted = true
                 }
             }
         }

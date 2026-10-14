@@ -293,6 +293,7 @@ libqt_plugin_la_SOURCES = \
 	player/delay_estimator.hpp \
 	player/player_controller.cpp player/player_controller.hpp player/player_controller_p.hpp \
 	player/player_controlbar_model.cpp player/player_controlbar_model.hpp \
+	player/effects_controller.cpp player/effects_controller.hpp \
 	player/control_list_model.cpp player/control_list_model.hpp \
 	player/control_list_filter.cpp \
 	player/control_list_filter.hpp \
@@ -495,6 +496,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	player/input_models.moc.cpp \
 	player/player_controller.moc.cpp \
 	player/player_controlbar_model.moc.cpp \
+	player/effects_controller.moc.cpp \
 	player/control_list_model.moc.cpp \
 	player/control_list_filter.moc.cpp \
 	playlist/playlist_controller.moc.cpp \
@@ -813,6 +815,8 @@ libqt_plugin_la_RES = \
 	pixmaps/icons/ic_album_cover.svg \
 	pixmaps/icons/ic_aspect_ratio.svg \
 	pixmaps/icons/atob.svg \
+	pixmaps/icons/link.svg \
+	pixmaps/icons/link_off.svg \
 	pixmaps/icons/ic_audiosub.svg \
 	pixmaps/icons/back.svg \
 	pixmaps/icons/ic_fluent_bookmark.svg \
@@ -1183,6 +1187,10 @@ libqml_module_player_a_CXXFLAGS = $(libqt_plugin_la_CXXFLAGS)
 libqml_module_player_a_CPPFLAGS = $(libqt_plugin_la_CPPFLAGS)
 libqml_module_player_a_QML = \
 	player/qml/ControlBar.qml \
+	player/qml/EffectsPanel.qml \
+	player/qml/EffectsSection.qml \
+	player/qml/EffectsSlider.qml \
+	player/qml/EffectsSwitch.qml \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \
 	player/qml/MiniPlayer.qml \

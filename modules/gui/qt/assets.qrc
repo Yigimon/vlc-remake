@@ -12,6 +12,8 @@
     </qresource>
     <qresource prefix="/icons">
         <file alias="atob.svg">pixmaps/icons/atob.svg</file>
+        <file alias="link.svg">pixmaps/icons/link.svg</file>
+        <file alias="link_off.svg">pixmaps/icons/link_off.svg</file>
         <file alias="ic_fluent_arrow_download_24_regular.svg">pixmaps/icons/ic_fluent_arrow_download_24_regular.svg</file>
         <file alias="ic_fluent_arrow_sync_24_regular.svg">pixmaps/icons/ic_fluent_arrow_sync_24_regular.svg</file>
     </qresource>

@@ -18,9 +18,11 @@
 import QtQuick
 
 
+import VLC.MainInterface
 import VLC.Widgets as Widgets
 import VLC.Style
 import VLC.Dialogs
+import VLC.Player
 import VLC.Util
 
 Widgets.IconToolButton {
@@ -32,5 +34,14 @@ Widgets.IconToolButton {
 
     AccessibleCompat.id: "extendedSettingsButton"
 
-    onClicked: DialogsProvider.extendedDialog()
+    // Redesign: the player shows the effects in a side panel, the dialog
+    // stays available elsewhere (and from the menus)
+    checked: MainCtx.playerView && PlayerEffects.panelVisible
+
+    onClicked: {
+        if (MainCtx.playerView)
+            PlayerEffects.panelVisible = !PlayerEffects.panelVisible
+        else
+            DialogsProvider.extendedDialog()
+    }
 }
